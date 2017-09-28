@@ -1,0 +1,79 @@
+\documentclass{book}
+
+
+\usepackage{amsmath}
+\usepackage{cite}
+\usepackage{booktabs}  
+\pagenumbering{gobble}
+
+\begin{document}
+
+
+
+\hrulefill
+
+\noindent\makebox[\linewidth]{
+  \begin{tabular}{|c|}
+  \hline
+  \rule{7in}{1ex}\\
+  \hline
+  \end{tabular}
+}
+
+
+\begin{tabular}{l}
+mean \\
+       \begin{tabular}{rrr}
+       pelvic\_incidence & pelvic\_tilt & lumbar\_lordosis\_angle \\
+         64.69256 & 19.79111 & 55.92537 \\
+         sacral\_slope & pelvic\_radius & degree\_spondylolisthesis \\
+         44.90145 & 115.07771 & 37.77771 \\
+         \end{tabular}
+         \end{tabular}
+
+
+
+
+
+
+
+
+
+\iffalse
+\begin{tabular}{lrcp{0.5in}}
+left aligned & right aligned & centered & set in a 0.5 inch parbox.
+\end{tabular}
+\begin{tabular}{lrcp{0.5in}}
+pelvic_incidence & pelvic_tilt & lumbar_lordosis_angle
+\end{tabular}
+\begin{tabular}{lrcp{0.5in}}
+64.69256 & 19.79111 & 55.92537
+\end{tabular}
+\begin{tabular}{lrcp{0.5in}}
+sacral_slope & pelvic_radius & degree_spondylolisthesis
+\end{tabular}
+\begin{tabular}{lrcp{0.5in}}
+44.90145 & 115.07771 & 37.77771
+\end{tabular}
+
+1. Vertebral Column Data Set
+  a) Summary
+    i. Normal
+      a) pelvic_incidence
+        - 64.69256
+      b) pelvic_tilt
+        - 19.79111
+      c) lumbar_lordosis_angle
+        - 55.92537
+      d) sacral_slope
+        - 44.90145
+      e) pelvic_radius
+        - 115.07771
+      f) degree_spondylolisthesis
+        - 37.77771
+    ii. Abnormal
+  b) pairs(vert[0:6], pch = 21, bg = c("green", "blue")[unclass(vert$class)])
+  c) Based on the data and the scatter plot 
+2. 
+\fi
+\end{document}

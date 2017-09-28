@@ -1,8 +1,0 @@
-﻿1. Vertebral Column Data Set
-a) Summary
-i. Normal
-a)  
-ii. Abnormal
-b) pairs(vert[0:6], pch = 21, bg = c("green", "blue")[unclass(vert$class)])
-c) Based on the data and the scatter plot 
-2. 
