@@ -116,6 +116,13 @@ Generating 100 3-dimensional vectors from a normal disribution with a mean vecto
 \end{verbatim}
 
 \[
+  mean=
+  \begin{bmatrix}
+    1 & 2 & 1
+  \end{bmatrix}
+\]
+
+\[
   cov=
   \begin{bmatrix}
     4 & 0.8 & -0.3 \\
@@ -130,8 +137,57 @@ Generating 100 3-dimensional vectors from a normal disribution with a mean vecto
 
 \chapter{Section 3}
 
+\begin{verbatim}
+	records <- read.table("five-dimensional-records.txt")
+	cov(records)
+\end{verbatim}
+
+\[
+  cov=
+  \begin{bmatrix}
+	1.183356e+07 & 59.924242 & 4152121.2121 & 173507.5758 & 490909.091 \\
+	5.992424e+01 & 3.191742 & 342.1212 & 141.9621 & 9818.182 \\
+	4.152121e+06 & 342.121212 & 1540606.0606 & 73424.2424 & 963636.364 \\
+	1.735076e+05 & 141.962121 & 73424.2424 & 13208.3333 & 569090.909 \\
+	4.909091e+05 & 9818.181818 & 963636.3636 & 569090.9091 & 40545454.545
+  \end{bmatrix}
+\]
+
+\begin{verbatim}	
+	prc <- -prcomp(records)
+	df <- as.data.frame(prc$x)[1:2]
+	
+\end{verbatim}
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{eigenvectors graph.png}
+	 \caption{Eigenvectors line graph}
+	\label{fig:eigenvectorslinegraph}
+\end{figure}
+
+
+
 \chapter{Section 4}
 
 \chapter{Section 5}
 
 \end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
