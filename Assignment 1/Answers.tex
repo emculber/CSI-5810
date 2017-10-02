@@ -3,6 +3,7 @@
 \usepackage{titlesec}
 \usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage{float}
 
 \pagenumbering{gobble}
 
@@ -101,7 +102,7 @@ The vertebral column data was first read from the ARFF file, then split into cla
 
 \section{c.}
 
-Given the values from section a and the scatter plot from section b we can see that the two classes are seperatated well by there values. For example if we pick two classes, pelvic\_radius and degree\_spondylolisthesis, we can compare the values and see how well they are seperated. If we also take into account the scatter plot from Figure \ref{fig:FeatureScatterPlot} we can see that abnormal classes have a larger value with respect of degree\_spondylolisthesis then the normal class.
+Given the values from section a and the scatter plot from section b we can see that the two classes are seperatated well when comparing certain values such as pelvic\_radius and degree\_spondylolithesis. If we compare the values using the scatter plot from Figure \ref{fig:FeatureScatterPlot} we can see that abnormal classes have a larger value with respect of degree\_spondylolisthesis then the normal class. This shows that given certain values there is some what of a well defined area of seperation.
 
 \chapter{Section 2}
 
@@ -111,19 +112,19 @@ Generating 100 3-dimensional vectors from a normal disribution with a mean vecto
 
 \begin{verbatim}
   mean <- c(1,2,1)
-  cov <- matrix(c(4, 0.8, -0.3, 0.8, 2, 0.6, -0.3, 0.6, 5), 3,3)
-  mvnd <- MASS\dotsmvrnorm(n = 100, mean, cov)
+  sigma <- matrix(c(4, 0.8, -0.3, 0.8, 2, 0.6, -0.3, 0.6, 5), 3,3)
+  mvnd <- MASS::mvrnorm(n = 100, mean, sigma)
 \end{verbatim}
 
 \[
-  mean=
+  mean <-
   \begin{bmatrix}
     1 & 2 & 1
   \end{bmatrix}
 \]
 
 \[
-  cov=
+  sigma <-
   \begin{bmatrix}
     4 & 0.8 & -0.3 \\
     0.8 & 2 & 0.6 \\
@@ -133,9 +134,92 @@ Generating 100 3-dimensional vectors from a normal disribution with a mean vecto
 
 \section{b.}
 
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{mvnd_scatter_plot.png}
+  \caption{Multivariate normal distribution}
+  \label{fig:MND}
+\end{figure}
+
+\par
+As you can see from Figure \ref{fig:MND} it seems that there is only a slight relationship between the variables. Looking at the graph i can see a slight upper right correlation between variable 2 and 3 and a slight upper left hand correlation between variable 1 and 3
+
 \section{c.}
 
+\begin{verbatim}
+  library(fields)
+  x1 <- mvnd[1,]
+  x2 <- mvnd[2,]
+  Euclidean <- rdist(x1, x2)
+\end{verbatim}
+
+\[
+  x1 <-
+  \begin{bmatrix}
+    0.08159917 & -0.3455406 & -0.2774757
+  \end{bmatrix}
+\]
+
+\[
+  x2 <-
+  \begin{bmatrix}
+    2.096857 & 2.785129 & 1.236984
+  \end{bmatrix}
+\]
+
+\[
+  Euclidean <-
+  \begin{bmatrix}
+    4.019446
+  \end{bmatrix}
+\]
+
+\begin{verbatim}
+  library(stats)
+  x <- mvnd[1:5,]
+  mean<-colMeans(x)
+  cov<-cov(x)
+  Mahalanobis<-mahalanobis(x,mean,cov) 
+\end{verbatim}
+
+\[
+  x <-
+  \begin{bmatrix}
+    0.08159917 & -0.3455406 & -0.277475694 \\
+    2.09685726 & 2.7851294 & 1.236983735 \\
+    1.64938859 & 2.7939131 & 1.255435381 \\
+    2.85857359 & 2.6075639 & 0.005900806 \\
+    2.87544416 & 4.4884076 & 3.080050468
+  \end{bmatrix}
+\]
+
+\[
+  mean <-
+  \begin{bmatrix}
+    1.912373 & 2.465895 & 1.060179
+  \end{bmatrix}
+\]
+
+\[
+  cov <-
+  \begin{bmatrix}
+    1.3194324 & 1.800401 & 0.8444832 \\
+    1.8004009 & 3.056076 & 1.9542692 \\
+    0.8444832 & 1.954269 & 1.7625221
+  \end{bmatrix}
+\]
+
+\[
+  Mahalanobis <-
+  \begin{bmatrix}
+    3.1344661 & 0.0400899 & 2.9093868 & 2.9826712 & 2.9333861
+  \end{bmatrix}
+\]
+
+
+
 \chapter{Section 3}
+
+\section{Eigenvalues \& Eigenvectors}
 
 \begin{verbatim}
 	records <- read.table("five-dimensional-records.txt")
@@ -184,11 +268,13 @@ Generating 100 3-dimensional vectors from a normal disribution with a mean vecto
   \end{bmatrix}
 \]
 
-\begin{figure}[h!]
+\begin{figure}[H]
 	\includegraphics[width=\linewidth]{eigenvectors graph.png}
 	 \caption{Eigenvectors line graph}
 	\label{fig:eigenvectorslinegraph}
 \end{figure}
+
+\section{reduced representation}
 
 \begin{verbatim}	
   PCA <- as.data.frame(prcomp(records)$x)[1:2]
@@ -212,11 +298,63 @@ Generating 100 3-dimensional vectors from a normal disribution with a mean vecto
   \end{bmatrix}
 \]
 
-\begin{figure}[h!]
+\section{Scatter Plot}
+
+\begin{figure}[H]
 	\includegraphics[width=\linewidth]{pca_scatter_plot.png}
 	 \caption{PCA Scatter Plot}
 	\label{fig:PCA Scatter Plot}
 \end{figure}
+
+\section{Reconstruct Data}
+
+\begin{verbatim}	
+  reconstructed <- PCA$x %*% t(PCA$rotation) + colMeans(records)
+  sqerr <- mean((records - reconstructed)^2)
+\end{verbatim}
+
+\[
+  records <- 
+  \begin{bmatrix}
+    5700 & 12.8 & 2500 & 270 & 25000 \\
+    1000 & 10.9 & 600 & 10 & 10000 \\
+    3400 & 8.8 & 1000 & 10 & 9000 \\
+    3800 & 13.6 & 1700 & 140 & 25000 \\
+    4000 & 12.8 & 1600 & 140 & 25000 \\
+    8200 & 8.3 & 2600 & 60 & 12000 \\
+    1200 & 11.4 & 400 & 10 & 16000 \\
+    9100 & 11.5 & 3300 & 60 & 14000 \\
+    9900 & 12.5 & 3400 & 180 & 18000 \\
+    9600 & 13.7 & 3600 & 390 & 25000 \\
+    9600 & 9.6 & 3300 & 80 & 12000 \\
+    9400 & 11.4 & 4000 & 100 & 13000
+  \end{bmatrix}
+\]
+
+\[
+  reconstructed <- 
+  \begin{bmatrix}
+    5700.0000 & 2334.6917 & 17166.6667 & 160.60833 & 8120.833 \\
+    -5230.2250 & 120.2917 & 4508.3333 & 2222.50000 & 10000.000 \\
+    -508.3333 & 16997.3583 & -1321.8917 & 10.00000 & -1758.333 \\
+    -2320.8333 & 6243.8250 & 1700.0000 & 17019.16667 & 8011.442 \\
+    14758.3333 & 12.8000 & -612.5000 & 6260.83333 & 10333.333 \\
+    8200.0000 & 2330.1917 & 17266.6667 & -49.39167 & -4879.167 \\
+    -5030.2250 & 120.7917 & 4308.3333 & 2222.50000 & 16000.000 \\
+    5191.6667 & 17000.0583 & 978.1083 & 60.00000 & 3241.667 \\
+    3779.1667 & 6242.7250 & 3400.0000 & 17059.16667 & 1011.442 \\
+    20358.3333 & 13.7000 & 1387.5000 & 6510.83333 & 10333.333 \\
+    9600.0000 & 2331.4917 & 17966.6667 & -29.39167 & -4879.167 \\
+    3169.7750 & 120.7917 & 7908.3333 & 2312.50000 & 13000.000
+  \end{bmatrix}
+\]
+
+\[
+  sqerr <- 
+  \begin{bmatrix}
+    76488567
+  \end{bmatrix}
+\]
 
 \chapter{Section 4}
 
@@ -247,13 +385,71 @@ Generating 100 3-dimensional vectors from a normal disribution with a mean vecto
   \end{bmatrix}
 \]
 
-\begin{figure}[h!]
+\begin{figure}[H]
   \includegraphics[width=\linewidth]{pca_vertebral_column_data_set.png}
   \caption{PCA Vertebral Column Data Set}
   \label{fig:PCAVertebralColumnDataSetScatterPlot}
 \end{figure}
 
 \chapter{Section 5}
+
+\begin{verbatim}	
+  library('tsne')
+  records <- read.table('five-dimensional-records.txt') 
+  tsne_10 <- tsne(records, perplexity=10)
+  tsne_50 <- tsne(records, perplexity=50)
+\end{verbatim}
+
+\[
+  tsne\_10 <- 
+  \begin{bmatrix}
+    -352.32073 & 278.07448 \\
+    -16.54169 & -481.36909 \\
+    400.59149 & -135.67055 \\
+    -398.91724 & -11.26791 \\
+    -175.19482 & 58.76914 \\
+    250.22489 & -336.66253 \\
+    362.52881 & 127.94042 \\
+    82.24818 & 108.50328 \\
+    145.93197 & 354.96502 \\
+    -125.27177 & 462.93079 \\
+    74.42643 & -146.08627 \\
+    -247.70552 & -280.12678
+  \end{bmatrix}
+\]
+
+\[
+  tsne\_50 <- 
+  \begin{bmatrix}
+    -157.92121 & -259.202370 \\
+    -84.49455 & -66.797062 \\
+    -224.85017 & 89.352029 \\
+    63.06430 & 296.897437 \\
+    303.43655 & -7.161843 \\
+    -145.51641 & 266.365026 \\
+    -288.65359 & -93.832651 \\
+    35.04427 & -239.403781 \\
+    225.58846 & -203.064369 \\
+    100.09517 & -39.776473 \\
+    -15.59996 & 106.572968 \\
+    189.80716 & 150.051089
+  \end{bmatrix}
+\]
+
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{tsne_p_10.png}
+  \caption{tsne perplexity 10}
+  \label{fig:tsnep10}
+\end{figure}
+
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{tsne_p_50.png}
+  \caption{tsne perplexity 50}
+  \label{fig:tsnep50}
+\end{figure}
+
+\par
+The data seems to be more correlated and well structed and not as spread out as the other data in question 3
 
 \end{document}
 
