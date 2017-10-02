@@ -16,7 +16,7 @@ rmargin=90pt}
 \begin{document}
 
 \chapter{Section 1}
-\section{a.}
+\section{a. Means, Standard Deviations, and Medians}
 
 The vertebral column data was first read from the ARFF file, then split into classes for processing.
 
@@ -85,13 +85,12 @@ The vertebral column data was first read from the ARFF file, then split into cla
   \end{tabular}
 \end{tabular}
 
-\section{b.}
+\section{b. Scatter Plots}
 
 \begin{verbatim}
   library(foreign)
   vert <- read.arff("column_2C_weka.arff")
-
-  pairs(vert[0:6], pch = 21, bg = c(``green'', ``blue'')[unclass(vert$class)])
+  pairs(vert[0:6], pch = 21, bg = c('green', 'blue')[unclass(vert$class)])
 \end{verbatim}
 
 \begin{figure}[h!]
@@ -100,13 +99,13 @@ The vertebral column data was first read from the ARFF file, then split into cla
   \label{fig:FeatureScatterPlot}
 \end{figure}
 
-\section{c.}
+\section{c. Opinion about data}
 
 Given the values from section a and the scatter plot from section b we can see that the two classes are seperatated well when comparing certain values such as pelvic\_radius and degree\_spondylolithesis. If we compare the values using the scatter plot from Figure \ref{fig:FeatureScatterPlot} we can see that abnormal classes have a larger value with respect of degree\_spondylolisthesis then the normal class. This shows that given certain values there is some what of a well defined area of seperation.
 
 \chapter{Section 2}
 
-\section{a.}
+\section{a. Generate 100 3-dimensional vectors from a normal distribution}
 
 Generating 100 3-dimensional vectors from a normal disribution with a mean vector as [1 2 1] and a 3x3 covariance matrix as [4  0.8 -0.3; 0.8 2 0.6; -0.3 0.6 5]
 
@@ -132,7 +131,7 @@ Generating 100 3-dimensional vectors from a normal disribution with a mean vecto
   \end{bmatrix}
 \]
 
-\section{b.}
+\section{b. Scatter Plots and Explained Relationships}
 
 \begin{figure}[H]
   \includegraphics[width=\linewidth]{mvnd_scatter_plot.png}
@@ -143,7 +142,7 @@ Generating 100 3-dimensional vectors from a normal disribution with a mean vecto
 \par
 As you can see from Figure \ref{fig:MND} it seems that there is only a slight relationship between the variables. Looking at the graph i can see a slight upper right correlation between variable 2 and 3 and a slight upper left hand correlation between variable 1 and 3
 
-\section{c.}
+\section{c. Euclidean and Mahalanobis distance}
 
 \begin{verbatim}
   library(fields)
@@ -274,7 +273,7 @@ As you can see from Figure \ref{fig:MND} it seems that there is only a slight re
 	\label{fig:eigenvectorslinegraph}
 \end{figure}
 
-\section{reduced representation}
+\section{Reduced Representation}
 
 \begin{verbatim}	
   PCA <- as.data.frame(prcomp(records)$x)[1:2]
