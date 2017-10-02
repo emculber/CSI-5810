@@ -139,11 +139,19 @@ Generating 100 3-dimensional vectors from a normal disribution with a mean vecto
 
 \begin{verbatim}
 	records <- read.table("five-dimensional-records.txt")
-	cov(records)
+  mean <- colMeans(records)
+	cov <- cov(records)
 \end{verbatim}
 
 \[
-  cov=
+  mean <- 
+  \begin{bmatrix}
+    6241.66667 & 11.44167 & 2333.33333 & 120.83333 & 17000.00000
+  \end{bmatrix}
+\]
+
+\[
+  cov <- 
   \begin{bmatrix}
 	1.183356e+07 & 59.924242 & 4152121.2121 & 173507.5758 & 490909.091 \\
 	5.992424e+01 & 3.191742 & 342.1212 & 141.9621 & 9818.182 \\
@@ -153,11 +161,28 @@ Generating 100 3-dimensional vectors from a normal disribution with a mean vecto
   \end{bmatrix}
 \]
 
-\begin{verbatim}	
-	prc <- -prcomp(records)
-	df <- as.data.frame(prc$x)[1:2]
-	
+\begin{verbatim}
+  Eigenvalues <- eigen(cov)$values
+  Eigenvectors <- eigen(cov)$vectors
 \end{verbatim}
+
+\[
+  Eigenvalues <- 
+  \begin{bmatrix}
+	  4.058981e+07 & 1.327940e+07 & 6.078551e+04 & 2.835137e+03 & 5.672175e-01
+  \end{bmatrix} \\
+\]
+
+\[
+  Eigenvectors <- 
+  \begin{bmatrix}
+    0.0210326211 & 9.430084e-01 & 0.332053840 & 0.0057119337 & -0.0006728422 \\
+    0.0002420299 & -8.480421e-06 & -0.002006136 & -0.0006633593 & -0.9999977384 \\
+    0.0269236336 & 3.312548e-01 & -0.942852072 & 0.0239126004 & 0.0018793378 \\
+    0.0141541619 & 1.292481e-02 & -0.020405538 & -0.9996077844 & 0.0007073532 \\
+    0.9993159400 & -2.895527e-02 & 0.018703144 & 0.0133939822 & 0.0001957042
+  \end{bmatrix}
+\]
 
 \begin{figure}[h!]
 	\includegraphics[width=\linewidth]{eigenvectors graph.png}
@@ -165,13 +190,92 @@ Generating 100 3-dimensional vectors from a normal disribution with a mean vecto
 	\label{fig:eigenvectorslinegraph}
 \end{figure}
 
+\begin{verbatim}	
+  PCA <- as.data.frame(prcomp(records)$x)[1:2]
+\end{verbatim}
 
+\[
+  PCA <- 
+  \begin{bmatrix}
+    7989.734 & -685.3013 \\
+    -7153.694 & -5315.8562 \\
+    -8091.763 & -2891.1789 \\
+    7926.393 & -2743.7012 \\
+    7927.907 & -2588.2250 \\
+    -4949.073 & 2079.0494 \\
+    -1158.977 & -5367.2371 \\
+    -2912.664 & 3101.7248 \\
+    1105.817 & 3774.9869 \\
+    8103.076 & 3358.3627 \\
+    -4900.497 & 3631.3980 \\
+    -3886.258 & 3645.9779
+  \end{bmatrix}
+\]
+
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{pca_scatter_plot.png}
+	 \caption{PCA Scatter Plot}
+	\label{fig:PCA Scatter Plot}
+\end{figure}
 
 \chapter{Section 4}
+
+\begin{verbatim}	
+  PCA <- prcomp(vert[0:6])
+  Eigenvalues <- PCA$sdev^2
+  Eigenvectors <- PCA$rotation
+  reduced <- as.data.frame(PCA$x)[1:2]
+  pairs(reduced, pch = 21, bg = c('green', 'blue')[unclass(vert$class)])
+\end{verbatim}
+
+\[
+  Eigenvalues <- 
+  \begin{bmatrix}
+    1.780994e+03 & 3.453271e+02 & 1.887770e+02 & 1.060179e+02 & 8.861407e+01 & 7.207841e-18
+  \end{bmatrix}
+\]
+
+\[
+  Eigenvectors <- 
+  \begin{bmatrix}
+    -0.32364565 & 0.47663485 & -0.001544813 & 0.37367725 & -0.44170387 & -5.773503e-01 \\
+    -0.11319229 & 0.09856328 & -0.264657410 & 0.75411376 & 0.07354147  & 5.773503e-01 \\
+    -0.30367474 & 0.53278398 & -0.496541893 & -0.33941176 & 0.51202411 & 1.089295e-11 \\
+    -0.21045336 & 0.37807157 & 0.263112598 & -0.38043651 & -0.51524534 & 5.773503e-01 \\
+    0.02995983 & -0.32180920 & -0.774612852 & -0.17510604 & -0.51463973 & 3.590517e-12 \\
+    -0.86315378 & -0.48243804 & 0.118940778 & -0.03291431 & 0.08359925 & -3.067324e-12
+  \end{bmatrix}
+\]
+
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{pca_vertebral_column_data_set.png}
+  \caption{PCA Vertebral Column Data Set}
+  \label{fig:PCAVertebralColumnDataSetScatterPlot}
+\end{figure}
 
 \chapter{Section 5}
 
 \end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
