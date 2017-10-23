@@ -1,6 +1,5 @@
-library(matlib)
-
 # Example Data
+library(rgl)
 
 example <- matrix(c(1,8,9,6,1,
                  2,6,7,5,1,
@@ -50,6 +49,33 @@ S2 <- (B1-M2) %*% t(B1 - M2) +
       (B5-M2) %*% t(B5 - M2)
 
 S <- S1 + S2
+
+W <- solve(S)%*%(M1-M2)
+
+U <- as.matrix(c(5,5,6))
+
+print("Good")
+print(t(W)%*%A1)
+print(t(W)%*%A2)
+print(t(W)%*%A3)
+print(t(W)%*%A4)
+print(t(W)%*%A5)
+print("Bad")
+print(t(W)%*%B1)
+print(t(W)%*%B2)
+print(t(W)%*%B3)
+print(t(W)%*%B4)
+print(t(W)%*%B5)
+print("Unknown")
+print(t(W)%*%U)
+
+points <- rbind(t(A1), t(A2), t(A3), t(A4), t(A5), t(B1), t(B2), t(B3), t(B4), t(B5), t(M1), t(M2), S1, S2, S)
+vector <- c(example[,5], 3,3, 4, 4, 4, 5,5,5,6,6,6)
+colors <- c("#999999", "#E69F00", "#56B4E9", "#FF7505", "#0D17FF", "#00FF09")
+color <- colors[vector]
+plot3d(points, col=color, size=12)
+segments3d(x=S1[1:2,1],y=S1[1:2,2],z=S1[1:2,3],col=2,lwd=2)
+
 
 
 A <- c(2, 10) 
