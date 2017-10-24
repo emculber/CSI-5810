@@ -1,6 +1,4 @@
 # Example Data
-library(rgl)
-
 example <- matrix(c(1,8,9,6,1,
                  2,6,7,5,1,
                  3,5,4,7,2,
@@ -73,8 +71,8 @@ points <- rbind(t(A1), t(A2), t(A3), t(A4), t(A5), t(B1), t(B2), t(B3), t(B4), t
 vector <- c(example[,5], 3,3, 4, 4, 4, 5,5,5,6,6,6)
 colors <- c("#999999", "#E69F00", "#56B4E9", "#FF7505", "#0D17FF", "#00FF09")
 color <- colors[vector]
-plot3d(points, col=color, size=12)
-segments3d(x=S1[1:2,1],y=S1[1:2,2],z=S1[1:2,3],col=2,lwd=2)
+# plot3d(points, col=color, size=12)
+# segments3d(x=S1[1:2,1],y=S1[1:2,2],z=S1[1:2,3],col=2,lwd=2)
 
 
 
@@ -93,7 +91,33 @@ class_2 <- rbind(C, D, E, F)
 
 # plot(rbind(class_1, class_2, M), pch = 21, bg = c('green', 'blue', 'orange')[factor(c(rep(1,4), rep(2,4), rep(3, 1)))])
 
-mean_class_1 <- colMeans(class_1)
-print(mean_class_1)
+M1 <- as.matrix(colMeans(class_1))
 
-#scatter_matrix_class_1 <- 
+S1 <- (A-M1) %*% t(A - M1) + 
+      (B-M1) %*% t(B - M1) + 
+      (G-M1) %*% t(G - M1) + 
+      (H-M1) %*% t(H - M1)
+
+M2 <- as.matrix(colMeans(class_2))
+
+S2 <- (C-M2) %*% t(C - M2) + 
+      (D-M2) %*% t(D - M2) + 
+      (E-M2) %*% t(E - M2) + 
+      (F-M2) %*% t(F - M2)
+
+S <- S1 + S2
+
+W <- solve(S)%*%(M1-M2)
+
+print("Class 1")
+print(t(W)%*%A)
+print(t(W)%*%B)
+print(t(W)%*%G)
+print(t(W)%*%H)
+print("Class 2")
+print(t(W)%*%C)
+print(t(W)%*%D)
+print(t(W)%*%E)
+print(t(W)%*%F)
+print("Unknown")
+print(t(W)%*%M)
