@@ -1,4 +1,4 @@
-dimensional_reduction <- function(data) {
+dimensional_reduction <- function(data, labels) {
   mean <- colMeans(data)
   cov <- cov(data)
 
@@ -6,7 +6,8 @@ dimensional_reduction <- function(data) {
   eigenvectors <- eigen(cov)$vectors
 
   pca <- prcomp(data)
-  plot(x, type='lines')
+  plot(pca, type='lines')
+  m <- naiveBayes(data.frame(pca$x[,1:10]), labels)
 
   return(pca)
 }
