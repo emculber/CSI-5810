@@ -29,19 +29,19 @@ def SeparateByClass(dataset, labels):
     return separated
 
 def Main():
-    train_filename="/home/erik/programming/r/CSI-5810/Project 1/UCI HAR Dataset/train/X_train.txt"
+    train_filename="X_train.txt"
     train_dataset = LoadDataset(train_filename)
     print("Loaded training data file {0} with {1} rows").format(train_filename, len(train_dataset))
 
-    train_label_filename="/home/erik/programming/r/CSI-5810/Project 1/UCI HAR Dataset/train/y_train.txt"
+    train_label_filename="y_train.txt"
     train_label_dataset = LoadLabelDataset(train_label_filename)
     print("Loaded training labels data file {0} with {1} rows").format(train_label_filename, len(train_label_dataset))
 
-    test_filename="/home/erik/programming/r/CSI-5810/Project 1/UCI HAR Dataset/test/X_test.txt"
+    test_filename="X_test.txt"
     test_dataset = LoadDataset(test_filename)
     print("Loaded training data file {0} with {1} rows").format(test_filename, len(test_dataset))
 
-    test_label_filename="/home/erik/programming/r/CSI-5810/Project 1/UCI HAR Dataset/test/y_test.txt"
+    test_label_filename="y_test.txt"
     test_label_dataset = LoadLabelDataset(test_label_filename)
     print("Loaded training labels data file {0} with {1} rows").format(test_label_filename, len(test_label_dataset))
 
