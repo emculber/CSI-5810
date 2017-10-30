@@ -37,3 +37,5 @@ print(sum / 10)
 
 library(Metrics)
 mse(records, records_reconstruct)
+
+mean((records - records_reconstruct) ^ 2)
