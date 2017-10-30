@@ -11,3 +11,4 @@ dimensional_reduction <- function(data, labels) {
 
   return(pca)
 }
+
