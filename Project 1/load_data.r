@@ -73,6 +73,10 @@ library(neuralnet)
 # mean(pr.nn_2 == test_labels)
 # print(confusionMatrix(unlist(pr.nn_2), unlist(test_labels)))
 
+# Adding GA https://topepo.github.io/caret/feature-selection-using-genetic-algorithms.html
+ga_ctrl <- gafsControl(functions = rfGA, method = "repeatedcv", repeats = 5)
+set.seed(10)
+rf_ga <- gafs(x = training_data, y = unlist(training_labels), iters = 200, gafsControl = ga_ctrl)
 
 train <- cbind(training_set.pca[, 1:500], class.ind(as.factor(training_set.pca$class)))
 names(train) <- c(names(training_set.pca)[1:500],"l1","l2","l3", "l4", "l5", "l6")
