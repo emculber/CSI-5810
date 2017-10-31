@@ -20,12 +20,22 @@ print(PCA)
 
 records_reconstruct <- records
 
+multi_mean <- mean
+for(i in 2:dim(records)[1]) {
+  multi_mean <- rbind(multi_mean, mean)
+}
+
 for(i in 1:dim(records)[1]) {
   for(x in 1:dim(records)[2]) {
     records_reconstruct[i,x] <- as.matrix(PCA[i,]) %*% Eigenvectors[x,1:2] + mean[x]
   }
 }
+
+
 print(records_reconstruct)
+print(mse(records, records_reconstruct))
+print((as.matrix(PCA) %*% t(Eigenvectors[,1:2])) + multi_mean)
+records_reconstruct <- (as.matrix(PCA) %*% t(Eigenvectors[,1:2])) + multi_mean
 
 sum <- 0
 for(i in 1:dim(records)[1]) {
@@ -36,6 +46,6 @@ for(i in 1:dim(records)[1]) {
 print(sum / 10)
 
 library(Metrics)
-mse(records, records_reconstruct)
+print(mse(records, records_reconstruct))
 
 mean((records - records_reconstruct) ^ 2)
