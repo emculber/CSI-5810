@@ -1,3 +1,6 @@
+library(nnet)
+library(caret)
+
 training_data <- read.table("./UCI HAR Dataset/train/X_train.txt")
 training_labels <- read.table("./UCI HAR Dataset/train/y_train.txt")
 
@@ -6,8 +9,12 @@ test_labels <- read.table("./UCI HAR Dataset/test/y_test.txt")
 print(dim(training_data))
 print(dim(training_labels))
 
-training_data.pca <- data.frame(prcomp(training_data)$x)[1:500]
-test_data.pca <- data.frame(prcomp(test_data)$x)[1:500]
+pca_number <- 178
+pca <- prcomp(training_data, scale=TRUE)
+#plot(pca)
+
+training_data.pca <- data.frame(pca$x)[1:pca_number]
+test_data.pca <- data.frame(predict(pca, newdata = test_data))[1:pca_number]
 
 training_labels <- data.frame(class=training_labels[,1])
 training_set <- cbind(training_data, training_labels)
@@ -16,6 +23,11 @@ training_set.pca <- cbind(training_data.pca, training_labels)
 test_labels <- data.frame(class=test_labels[,1])
 test_set <- cbind(test_data, test_labels)
 test_set.pca <- cbind(test_data.pca, test_labels)
+
+pca.summary <- summary(pca)
+for (i in 561:1) {
+    print(sprintf("%d: %f", i, sum(pca.summary$importance[2,1:i])))
+}
 
 print("Class 1")
 print(dim(training_set[training_set$class==1,]))
@@ -62,11 +74,13 @@ library(neuralnet)
 # plot(nn)
 # pr.nn <- compute(nn,test_data)
 
+set.seed(10)
+
 # train <- cbind(training_set[, 1:561], class.ind(as.factor(training_set$class)))
 # names(train) <- c(names(training_set)[1:561],"l1","l2","l3", "l4", "l5", "l6")
 # n <- names(train)
 # f <- as.formula(paste("l1 + l2 + l3 + l4 + l5 + l6 ~", paste(n[!n %in% c("l1","l2","l3", "l4", "l5", "l6")], collapse = " + ")))
-# nn <- neuralnet(f, data = train, hidden = c(30,30,30), act.fct = "logistic", linear.output = FALSE, lifesign = "minimal")
+# nn <- neuralnet(f, data = train, hidden = c(100,50,30), act.fct = "logistic", linear.output = FALSE, lifesign = "minimal")
 # pr.nn <- compute(nn, test_data)
 # pr.nn_ <- pr.nn$net.result
 # pr.nn_2 <- max.col(pr.nn_)
@@ -74,17 +88,72 @@ library(neuralnet)
 # print(confusionMatrix(unlist(pr.nn_2), unlist(test_labels)))
 
 # Adding GA https://topepo.github.io/caret/feature-selection-using-genetic-algorithms.html
-ga_ctrl <- gafsControl(functions = rfGA, method = "repeatedcv", repeats = 5)
-set.seed(10)
-rf_ga <- gafs(x = training_data, y = unlist(training_labels), iters = 200, gafsControl = ga_ctrl)
+#ga_ctrl <- gafsControl(functions = rfGA, method = "repeatedcv", repeats = 5)
+#set.seed(10)
+#rf_ga <- gafs(x = training_data, y = unlist(training_labels), iters = 200, gafsControl = ga_ctrl)
 
-train <- cbind(training_set.pca[, 1:500], class.ind(as.factor(training_set.pca$class)))
-names(train) <- c(names(training_set.pca)[1:500],"l1","l2","l3", "l4", "l5", "l6")
+train <- cbind(training_set.pca[, 1:pca_number], class.ind(as.factor(training_set.pca$class)))
+names(train) <- c(names(training_set.pca)[1:pca_number],"l1","l2","l3", "l4", "l5", "l6")
 n <- names(train)
 f <- as.formula(paste("l1 + l2 + l3 + l4 + l5 + l6 ~", paste(n[!n %in% c("l1","l2","l3", "l4", "l5", "l6")], collapse = " + ")))
-nn <- neuralnet(f, data = train, hidden = c(30,30,30), act.fct = "logistic", linear.output = FALSE, lifesign = "minimal")
+nn <- neuralnet(f, data = train, hidden = c(100), act.fct = "logistic", linear.output = FALSE, lifesign = "minimal")
 pr.nn <- compute(nn, test_data.pca)
 pr.nn_ <- pr.nn$net.result
 pr.nn_2 <- max.col(pr.nn_)
 mean(pr.nn_2 == test_labels)
 print(confusionMatrix(unlist(pr.nn_2), unlist(test_labels)))
+plot(nn)
+
+#0.9243298
+#0.9049881
+
+# train <- cbind(training_set.pca[, 1:pca_number], class.ind(as.factor(training_set.pca$class)))
+# names(train) <- c(names(training_set.pca)[1:pca_number],"l1","l2","l3", "l4", "l5", "l6")
+# n <- names(train)
+# f <- as.formula(paste("l1 + l2 + l3 + l4 + l5 + l6 ~", paste(n[!n %in% c("l1","l2","l3", "l4", "l5", "l6")], collapse = " + ")))
+# nn <- neuralnet(f, data = train, hidden = c(9), act.fct = "logistic", linear.output = FALSE, lifesign = "minimal")
+# pr.nn <- compute(nn, test_data.pca)
+# pr.nn_ <- pr.nn$net.result
+# pr.nn_2 <- max.col(pr.nn_)
+# acc <- mean(pr.nn_2 == test_labels)
+# results <- acc
+# print(sprintf("%d: acc: %f", 9, acc))
+
+# for (i in 10:500) {
+#     train <- cbind(training_set.pca[, 1:pca_number], class.ind(as.factor(training_set.pca$class)))
+#     names(train) <- c(names(training_set.pca)[1:pca_number],"l1","l2","l3", "l4", "l5", "l6")
+#     n <- names(train)
+#     f <- as.formula(paste("l1 + l2 + l3 + l4 + l5 + l6 ~", paste(n[!n %in% c("l1","l2","l3", "l4", "l5", "l6")], collapse = " + ")))
+#     nn <- neuralnet(f, data = train, hidden = c(i), act.fct = "logistic", linear.output = FALSE, lifesign = "minimal")
+#    pr.nn <- compute(nn, test_data.pca)
+#    pr.nn_ <- pr.nn$net.result
+#    pr.nn_2 <- max.col(pr.nn_)
+#    acc <- mean(pr.nn_2 == test_labels)
+#    results <- rbind(results, acc)
+#    print(sprintf("%d: acc: %f", i, acc))
+    #print(confusionMatrix(unlist(pr.nn_2), unlist(test_labels)))
+# }
+# print(results)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
