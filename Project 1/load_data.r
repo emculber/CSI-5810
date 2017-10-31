@@ -87,8 +87,18 @@ set.seed(10)
 # mean(pr.nn_2 == test_labels)
 # print(confusionMatrix(unlist(pr.nn_2), unlist(test_labels)))
 
+# library(doParallel)
+# library(dplyr)
+# library(pROC)
+#  registerDoParallel(4)
+# getDoParWorkers()
+# ga_ctrl <- gafsControl(functions = rfGA, method = "cv", genParallel=TRUE, allowParallel = TRUE, verbose = TRUE)
+# set.seed(10)
+# lev <- c("PS","WS")
+# system.time(rf_ga3 <- gafs(x = training_data, y = unlist(training_labels), iters = 3, popSize = 20, levels = lev, gafsControl = ga_ctrl))
 # Adding GA https://topepo.github.io/caret/feature-selection-using-genetic-algorithms.html
 #ga_ctrl <- gafsControl(functions = rfGA, method = "repeatedcv", repeats = 5)
+
 #set.seed(10)
 #rf_ga <- gafs(x = training_data, y = unlist(training_labels), iters = 200, gafsControl = ga_ctrl)
 
@@ -96,7 +106,7 @@ train <- cbind(training_set.pca[, 1:pca_number], class.ind(as.factor(training_se
 names(train) <- c(names(training_set.pca)[1:pca_number],"l1","l2","l3", "l4", "l5", "l6")
 n <- names(train)
 f <- as.formula(paste("l1 + l2 + l3 + l4 + l5 + l6 ~", paste(n[!n %in% c("l1","l2","l3", "l4", "l5", "l6")], collapse = " + ")))
-nn <- neuralnet(f, data = train, hidden = c(100), act.fct = "logistic", linear.output = FALSE, lifesign = "minimal")
+nn <- neuralnet(f, data = train, hidden = c(50, 26), act.fct = "logistic", linear.output = FALSE, lifesign = "minimal")
 pr.nn <- compute(nn, test_data.pca)
 pr.nn_ <- pr.nn$net.result
 pr.nn_2 <- max.col(pr.nn_)
@@ -134,26 +144,3 @@ plot(nn)
     #print(confusionMatrix(unlist(pr.nn_2), unlist(test_labels)))
 # }
 # print(results)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

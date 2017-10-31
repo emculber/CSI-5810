@@ -1,6 +1,7 @@
 from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import classification_report,confusion_matrix
+from sklearn.decomposition import PCA
 
 def LoadDataset(filename):
     dataset = open(filename, "r").readlines()
@@ -28,28 +29,33 @@ def SeparateByClass(dataset, labels):
 
     return separated
 
+def pca(train, test, num):
+	print "%d-Dim:"%num
+	pca = PCA(n_components=num)
+	pca.fit(train)
+	train = pca.transform(train)
+        test = pca.transform(test)
+
+        return train, test
+
 def Main():
-    train_filename="X_train.txt"
+    train_filename="UCI HAR Dataset/train/X_train.txt"
     train_dataset = LoadDataset(train_filename)
     print("Loaded training data file {0} with {1} rows").format(train_filename, len(train_dataset))
 
-    train_label_filename="y_train.txt"
+    train_label_filename="UCI HAR Dataset/train/y_train.txt"
     train_label_dataset = LoadLabelDataset(train_label_filename)
     print("Loaded training labels data file {0} with {1} rows").format(train_label_filename, len(train_label_dataset))
 
-    test_filename="X_test.txt"
+    test_filename="UCI HAR Dataset/test/X_test.txt"
     test_dataset = LoadDataset(test_filename)
     print("Loaded training data file {0} with {1} rows").format(test_filename, len(test_dataset))
 
-    test_label_filename="y_test.txt"
+    test_label_filename="UCI HAR Dataset/test/y_test.txt"
     test_label_dataset = LoadLabelDataset(test_label_filename)
     print("Loaded training labels data file {0} with {1} rows").format(test_label_filename, len(test_label_dataset))
 
-    scaler = StandardScaler()
-    scaler.fit(train_dataset)
-
-    train_dataset = scaler.transform(train_dataset)
-    test_dataset = scaler.transform(test_dataset)
+    train_dataset, test_dataset = pca(train_dataset, test_dataset, 178)
 
     mlp = MLPClassifier(hidden_layer_sizes=(30,30,30))
     mlp.fit(train_dataset, train_label_dataset)

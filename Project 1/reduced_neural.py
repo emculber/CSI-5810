@@ -96,6 +96,20 @@ def feature_PCA(path_i, path_o, num):
 		fo.write("\n")
 	fo.close()
 
+def pca(train, test, num):
+	print "Original data:"
+	print train
+
+	print "\n--------------"
+	print "%d-Dim:"%num
+	pca = PCA(n_components=num)
+	pca.fit(train)
+	train = pca.transform(train)
+        test = pca.transform(test)
+
+        return train, test
+
+
 def load_data(path1, path2, path3, path4):
 	f = open(path1, "r")
 	count = 0
