@@ -1,48 +1,48 @@
 library(nnet)
 library(caret)
 
-features <- read.table("./UCI HAR Dataset/train/y_train.txt")
+# Settings
+pca_number <- 178
+
+# Load Data
+print("Loading Data")
+
+features <- read.table("./UCI HAR Dataset/features.txt")
 
 training_data <- read.table("./UCI HAR Dataset/train/X_train.txt")
 training_labels <- read.table("./UCI HAR Dataset/train/y_train.txt")
+subject_training <- read.table("./UCI HAR Dataset/train/subject_train.txt")
 
 test_data <- read.table("./UCI HAR Dataset/test/X_test.txt")
 test_labels <- read.table("./UCI HAR Dataset/test/y_test.txt")
-print(dim(training_data))
-print(dim(training_labels))
+subject_test <- read.table("./UCI HAR Dataset/test/subject_test.txt")
 
-pca_number <- 178
+print("Data Loaded")
+
+# Setting up data
+print("Setting up feature labels")
+
+colnames(training_data) <- unlist(lapply(features[2], as.character))
+colnames(test_data) <- unlist(lapply(features[2], as.character))
+
 pca <- prcomp(training_data, scale=TRUE)
-#plot(pca)
+
+training_labels <- data.frame(class=training_labels[,1])
+subject_training <- data.frame(subject=subject_training[,1])
+test_labels <- data.frame(class=test_labels[,1])
+subject_test <- data.frame(class=subject_test[,1])
+
+training_set <- cbind(training_data, training_labels)
+test_set <- cbind(test_data, test_labels)
+
+training_all <- cbind(training_set, subject_training)
+test_all <- cbind(test_set, subject_test)
 
 training_data.pca <- data.frame(pca$x)[1:pca_number]
 test_data.pca <- data.frame(predict(pca, newdata = test_data))[1:pca_number]
-
-training_labels <- data.frame(class=training_labels[,1])
-training_set <- cbind(training_data, training_labels)
 training_set.pca <- cbind(training_data.pca, training_labels)
-
-test_labels <- data.frame(class=test_labels[,1])
-test_set <- cbind(test_data, test_labels)
 test_set.pca <- cbind(test_data.pca, test_labels)
 
-pca.summary <- summary(pca)
-for (i in 561:1) {
-    print(sprintf("%d: %f", i, sum(pca.summary$importance[2,1:i])))
-}
-
-print("Class 1")
-print(dim(training_set[training_set$class==1,]))
-print("Class 2")
-print(dim(training_set[training_set$class==2,]))
-print("Class 3")
-print(dim(training_set[training_set$class==3,]))
-print("Class 4")
-print(dim(training_set[training_set$class==4,]))
-print("Class 5")
-print(dim(training_set[training_set$class==5,]))
-print("Class 6")
-print(dim(training_set[training_set$class==6,]))
 
 t1 <- training_set[training_set$class==1,]
 t2 <- training_set[training_set$class==2,]
@@ -50,6 +50,66 @@ t3 <- training_set[training_set$class==3,]
 t4 <- training_set[training_set$class==4,]
 t5 <- training_set[training_set$class==5,]
 t6 <- training_set[training_set$class==6,]
+
+ta1 <- training_all[training_all$class==1,]
+ta2 <- training_all[training_all$class==2,]
+ta3 <- training_all[training_all$class==3,]
+ta4 <- training_all[training_all$class==4,]
+ta5 <- training_all[training_all$class==5,]
+ta6 <- training_all[training_all$class==6,]
+
+training_set_count_table <- matrix(
+                                   c(
+                                     dim(t1)[1], 
+                                     dim(t2)[1], 
+                                     dim(t3)[1], 
+                                     dim(t4)[1], 
+                                     dim(t5)[1], 
+                                     dim(t6)[1]
+                                     ),
+                                   ncol=6,
+                                   byrow=TRUE
+                                   )
+
+subjects <- c()
+for (i in 1:6) {
+  s <- c()
+  for (x in 1:30) {
+    s <- rbind(s, dim(training_all[training_all$class==i & training_all$subject==x,])[1])
+  }
+  subjects <- cbind(subjects, s)
+}
+
+training_set_count_table <- rbind(training_set_count_table, subjects)
+
+colnames(training_set_count_table) <- c(
+                                        "WALKING", 
+                                        "WALKING_UPSTAIRS", 
+                                        "WALKING_DOWNSTAIRS", 
+                                        "SITTING", 
+                                        "STANDING", 
+                                        "LAYING"
+                                        )
+
+rownames(training_set_count_table) <- c("COUNT", factor(1:30))
+training_set_count_table <- as.table(training_set_count_table)
+
+barplot(training_set_count_table[1,], main="Training Set Count", xlab="Activity Label", ylab="Activity Count", legend = rownames(training_set_count_table), beside=TRUE)
+barplot(training_set_count_table[-1,], main="Training Set Count", xlab="Activity Label", ylab="Activity Count", legend = rownames(training_set_count_table), beside=TRUE)
+grid.arrange(ss)
+
+print(sprintf("Class 1 dim: (%d, %d)", dim(t1)[1], dim(t1)[2]))
+print(sprintf("Class 2 dim: (%d, %d)", dim(t2)[1], dim(t2)[2]))
+print(sprintf("Class 3 dim: (%d, %d)", dim(t3)[1], dim(t3)[2]))
+print(sprintf("Class 4 dim: (%d, %d)", dim(t4)[1], dim(t4)[2]))
+print(sprintf("Class 5 dim: (%d, %d)", dim(t5)[1], dim(t5)[2]))
+print(sprintf("Class 6 dim: (%d, %d)", dim(t6)[1], dim(t6)[2]))
+
+pca.summary <- summary(pca)
+variance <- pca.summary$importance[2,]
+# for (i in 561:1) {
+#     print(sprintf("%d: %f", i, sum(pca.summary$importance[2,1:i])))
+# }
 
 # par(mfrow=c(6,1))
 
