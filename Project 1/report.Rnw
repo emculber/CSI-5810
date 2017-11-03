@@ -1,0 +1,90 @@
+\documentclass{report}
+\begin{document}
+
+<<echo=false>>=
+features <- read.table("./UCI HAR Dataset/features.txt")
+
+training_data <- read.table("./UCI HAR Dataset/train/X_train.txt")
+training_labels <- read.table("./UCI HAR Dataset/train/y_train.txt")
+subject_training <- read.table("./UCI HAR Dataset/train/subject_train.txt")
+
+test_data <- read.table("./UCI HAR Dataset/test/X_test.txt")
+test_labels <- read.table("./UCI HAR Dataset/test/y_test.txt")
+subject_test <- read.table("./UCI HAR Dataset/test/subject_test.txt")
+
+colnames(training_data) <- unlist(lapply(features[2], as.character))
+colnames(test_data) <- unlist(lapply(features[2], as.character))
+
+training_labels <- data.frame(class=training_labels[,1])
+test_labels <- data.frame(class=test_labels[,1])
+
+training_set <- cbind(training_data, training_labels)
+test_set <- cbind(test_data, test_labels)
+
+t1 <- training_set[training_set$class==1,]
+t2 <- training_set[training_set$class==2,]
+t3 <- training_set[training_set$class==3,]
+t4 <- training_set[training_set$class==4,]
+t5 <- training_set[training_set$class==5,]
+t6 <- training_set[training_set$class==6,]
+
+training_set_count_table <- matrix(c(dim(t1)[1], dim(t2)[1], dim(t3)[1], dim(t4)[1], dim(t5)[1], dim(t6)[1]), ncol=6, byrow=TRUE)
+
+colnames(training_set_count_table) <- c("WALKING", "WALKING_UPSTAIRS", "WALKING_DOWNSTAIRS", "SITTING", "STANDING", "LAYING")
+
+training_set_count_table <- as.table(training_set_count_table)
+@
+
+\section{Introduction}
+
+\section{Dataset Analysis}
+The data given was for recognizing activities of daily living. The data was collected by recording 30 subjects using a waist-mounted smartphone within the age bracket of 19-48 years. The smartphone used was a Samsung Galaxy S II. Using the accelerometer and gyroscope the researcher was able to collect the 3-axial linear acceleration and the 3-axial angular velocity data.
+
+The raw data was labeled and pre-processed by applying filters to remove noise from the data. then a vector of features was obtained by calculating variables from the time and frequency domain. Some of the filters applied was to the gyroscope they used a median filter and a 3rd order low pass Butterworth filter with a corner frequency of 0.3 Hz. To the Acceleration signals was separated by body and gravity acceleration and a low pass Butterworth filter was a corner frequency of 0.3 Hz was applied. Using body linear acceleration and angular velocity they were able to derived Jerk signals in time and also using the Euclidean norm derive the magnitude of the three-dimensional signals. Lastly applying Fast Fourier Transform to some of the signals. Finally the list below are a set of time and frequency domain signals were achieved.
+
+These signals were then separated by axies and calculated various statistics like mean and standard deviation and normalized to obtain a set of 561 features. The data was then split into a 70\% and 30\% training and test set respectivlt. With the test set seperated we can start to analize the training data. Figure 1 shows the breakdown of the 6 posible outcomes in the training set.
+
+<<fig=true, echo=false>>=
+barplot(training_set_count_table, main="Training Set Count", xlab="Activity Label", ylab="Activity Count")
+@
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

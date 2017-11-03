@@ -1,7 +1,8 @@
 from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import classification_report,confusion_matrix
+from sklearn.metrics import classification_report,confusion_matrix,accuracy_score
 from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
 
 def LoadDataset(filename):
     dataset = open(filename, "r").readlines()
@@ -55,18 +56,68 @@ def Main():
     test_label_dataset = LoadLabelDataset(test_label_filename)
     print("Loaded training labels data file {0} with {1} rows").format(test_label_filename, len(test_label_dataset))
 
-    train_dataset, test_dataset = pca(train_dataset, test_dataset, 178)
+    # train_dataset, test_dataset = pca(train_dataset, test_dataset, 178)
+    acc_1=[]
+    acc_2=[]
+    acc_3=[]
+    max_pred_1 = 0 
+    num_node_1 = 0
+    max_pred_2 = 0 
+    num_node_2 = 0
+    max_pred_3 = 0 
+    num_node_3 = 0
+    for i in range(1,500):
+        print("Running: " + str(i) + "/500")
+        mlp = MLPClassifier(hidden_layer_sizes=(i), random_state=0)
+        mlp.fit(train_dataset, train_label_dataset)
 
-    mlp = MLPClassifier(hidden_layer_sizes=(30,30,30))
-    mlp.fit(train_dataset, train_label_dataset)
+        predictions = mlp.predict(test_dataset)
+        # print(confusion_matrix(test_label_dataset,predictions))
+        # print(classification_report(test_label_dataset,predictions))
+        acc_1.append(accuracy_score(test_label_dataset,predictions))    
+        if accuracy_score(test_label_dataset,predictions) > max_pred_1:
+            max_pred_1 = accuracy_score(test_label_dataset,predictions)
+            num_node_1 = i
 
-    predictions = mlp.predict(test_dataset)
-    print(confusion_matrix(test_label_dataset,predictions))
-    print(classification_report(test_label_dataset,predictions))
+    for x in range(1,500):
+        print("Running: " + str(i) + "/500")
+        for y in range(1,500):
+            mlp = MLPClassifier(hidden_layer_sizes=(x, y), random_state=0)
+            mlp.fit(train_dataset, train_label_dataset)
 
-    print(len(mlp.coefs_))
-    print(len(mlp.coefs_[0]))
-    print(len(mlp.intercepts_[0]))
+            predictions = mlp.predict(test_dataset)
+            # print(confusion_matrix(test_label_dataset,predictions))
+            # print(classification_report(test_label_dataset,predictions))
+            acc_1.append(accuracy_score(test_label_dataset,predictions))    
+            if accuracy_score(test_label_dataset,predictions) > max_pred_1:
+                max_pred_1 = accuracy_score(test_label_dataset,predictions)
+                num_node_1 = i
+
+    for x in range(1,500):
+        print("Running: " + str(i) + "/500")
+        for y in range(1,500):
+            for z in range(1,500):
+                mlp = MLPClassifier(hidden_layer_sizes=(x, y, z), random_state=0)
+                mlp.fit(train_dataset, train_label_dataset)
+
+                predictions = mlp.predict(test_dataset)
+                # print(confusion_matrix(test_label_dataset,predictions))
+                # print(classification_report(test_label_dataset,predictions))
+                acc_1.append(accuracy_score(test_label_dataset,predictions))    
+                if accuracy_score(test_label_dataset,predictions) > max_pred_1:
+                    max_pred_1 = accuracy_score(test_label_dataset,predictions)
+                    num_node_1 = i
+    # print(acc)
+    plt.plot(acc_1)
+    plt.plot(acc_2)
+    plt.plot(acc_3)
+    plt.show()
+    print(max_pred_1)
+    print(num_node_1)
+    print(max_pred_2)
+    print(num_node_2)
+    print(max_pred_3)
+    print(num_node_3)
 
 
 Main()

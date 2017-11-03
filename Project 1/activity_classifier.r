@@ -1,5 +1,6 @@
 library(nnet)
 library(caret)
+library(gridExtra)
 
 # Settings
 pca_number <- 178
@@ -58,18 +59,7 @@ ta4 <- training_all[training_all$class==4,]
 ta5 <- training_all[training_all$class==5,]
 ta6 <- training_all[training_all$class==6,]
 
-training_set_count_table <- matrix(
-                                   c(
-                                     dim(t1)[1], 
-                                     dim(t2)[1], 
-                                     dim(t3)[1], 
-                                     dim(t4)[1], 
-                                     dim(t5)[1], 
-                                     dim(t6)[1]
-                                     ),
-                                   ncol=6,
-                                   byrow=TRUE
-                                   )
+training_set_count_table <- matrix(c(dim(t1)[1], dim(t2)[1], dim(t3)[1], dim(t4)[1], dim(t5)[1], dim(t6)[1]), ncol=6, byrow=TRUE)
 
 subjects <- c()
 for (i in 1:6) {
@@ -82,20 +72,16 @@ for (i in 1:6) {
 
 training_set_count_table <- rbind(training_set_count_table, subjects)
 
-colnames(training_set_count_table) <- c(
-                                        "WALKING", 
-                                        "WALKING_UPSTAIRS", 
-                                        "WALKING_DOWNSTAIRS", 
-                                        "SITTING", 
-                                        "STANDING", 
-                                        "LAYING"
-                                        )
+colnames(training_set_count_table) <- c("WALKING", "WALKING_UPSTAIRS", "WALKING_DOWNSTAIRS", "SITTING", "STANDING", "LAYING")
 
 rownames(training_set_count_table) <- c("COUNT", factor(1:30))
 training_set_count_table <- as.table(training_set_count_table)
 
-barplot(training_set_count_table[1,], main="Training Set Count", xlab="Activity Label", ylab="Activity Count", legend = rownames(training_set_count_table), beside=TRUE)
-barplot(training_set_count_table[-1,], main="Training Set Count", xlab="Activity Label", ylab="Activity Count", legend = rownames(training_set_count_table), beside=TRUE)
+
+barplot(training_set_count_table[1,], main="Training Set Count", xlab="Activity Label", ylab="Activity Count")
+readline(prompt="Press [enter] to continue")
+barplot(training_set_count_table[-1,], main="Training Set Counts", xlab="Activity Label", ylab="Activity Count", legend = rownames(training_set_count_table), beside=TRUE)
+readline(prompt="Press [enter] to continue")
 grid.arrange(ss)
 
 print(sprintf("Class 1 dim: (%d, %d)", dim(t1)[1], dim(t1)[2]))
