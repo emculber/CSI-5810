@@ -63,9 +63,12 @@ def Main():
     max_pred_1 = 0 
     num_node_1 = 0
     max_pred_2 = 0 
-    num_node_2 = 0
+    num_node_2_1 = 0
+    num_node_2_2 = 0
     max_pred_3 = 0 
-    num_node_3 = 0
+    num_node_3_1 = 0
+    num_node_3_2 = 0
+    num_node_3_3 = 0
     for i in range(1,500):
         print("Running: " + str(i) + "/500")
         mlp = MLPClassifier(hidden_layer_sizes=(i), random_state=0)
@@ -80,7 +83,7 @@ def Main():
             num_node_1 = i
 
     for x in range(1,500):
-        print("Running: " + str(i) + "/500")
+        print("Running: " + str(x) + "/500")
         for y in range(1,500):
             mlp = MLPClassifier(hidden_layer_sizes=(x, y), random_state=0)
             mlp.fit(train_dataset, train_label_dataset)
@@ -88,13 +91,14 @@ def Main():
             predictions = mlp.predict(test_dataset)
             # print(confusion_matrix(test_label_dataset,predictions))
             # print(classification_report(test_label_dataset,predictions))
-            acc_1.append(accuracy_score(test_label_dataset,predictions))    
-            if accuracy_score(test_label_dataset,predictions) > max_pred_1:
-                max_pred_1 = accuracy_score(test_label_dataset,predictions)
-                num_node_1 = i
+            acc_2.append(accuracy_score(test_label_dataset,predictions))    
+            if accuracy_score(test_label_dataset,predictions) > max_pred_2:
+                max_pred_2 = accuracy_score(test_label_dataset,predictions)
+                num_node_2_1 = x
+                num_node_2_2 = y
 
     for x in range(1,500):
-        print("Running: " + str(i) + "/500")
+        print("Running: " + str(x) + "/500")
         for y in range(1,500):
             for z in range(1,500):
                 mlp = MLPClassifier(hidden_layer_sizes=(x, y, z), random_state=0)
@@ -103,10 +107,12 @@ def Main():
                 predictions = mlp.predict(test_dataset)
                 # print(confusion_matrix(test_label_dataset,predictions))
                 # print(classification_report(test_label_dataset,predictions))
-                acc_1.append(accuracy_score(test_label_dataset,predictions))    
-                if accuracy_score(test_label_dataset,predictions) > max_pred_1:
-                    max_pred_1 = accuracy_score(test_label_dataset,predictions)
-                    num_node_1 = i
+                acc_3.append(accuracy_score(test_label_dataset,predictions))    
+                if accuracy_score(test_label_dataset,predictions) > max_pred_3:
+                    max_pred_3 = accuracy_score(test_label_dataset,predictions)
+                    num_node_3_1 = x
+                    num_node_3_2 = y
+                    num_node_3_3 = z
     # print(acc)
     plt.plot(acc_1)
     plt.plot(acc_2)
@@ -115,9 +121,12 @@ def Main():
     print(max_pred_1)
     print(num_node_1)
     print(max_pred_2)
-    print(num_node_2)
+    print(num_node_2_1)
+    print(num_node_2_2)
     print(max_pred_3)
-    print(num_node_3)
+    print(num_node_3_1)
+    print(num_node_3_2)
+    print(num_node_3_3)
 
 
 Main()
