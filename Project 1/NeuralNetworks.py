@@ -1,8 +1,10 @@
 from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import classification_report,confusion_matrix,accuracy_score
+from sklearn.metrics import classification_report,confusion_matrix,accuracy_score,f1_score,precision_score,recall_score,mean_squared_error
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 def LoadDataset(filename):
     dataset = open(filename, "r").readlines()
@@ -34,12 +36,41 @@ def pca(train, test, num):
 	print "%d-Dim:"%num
 	pca = PCA(n_components=num)
 	pca.fit(train)
-	train = pca.transform(train)
+        train = pca.transform(train)
         test = pca.transform(test)
 
         return train, test
 
+def NeuralNetwork(hidden_layer_sizes, train_dataset, train_label_dataset, test_dataset, random_state):
+    mlp = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, random_state=random_state)
+    mlp.fit(train_dataset, train_label_dataset)
+        
+    predictions = mlp.predict(test_dataset)
+
+    return predictions
+
+def NeuralNetworkResults(labels, predictions):
+    accuracy = accuracy_score(labels,predictions)
+    
+    fscoreMicro = f1_score(labels, predictions, average='micro')
+    fscoreMacro = f1_score(labels, predictions, average='macro')
+    fscoreWeighted = f1_score(labels, predictions, average='weighted')
+    
+    precisioncoreMicro = precision_score(labels, predictions, average='micro')
+    precisionscoreMacro = precision_score(labels, predictions, average='macro')
+    precisionscoreWeighted = precision_score(labels, predictions, average='weighted')
+    
+    recallscoreMicro = recall_score(labels, predictions, average='micro')
+    recallscoreMacro = recall_score(labels, predictions, average='macro')
+    recallscoreWeighted = recall_score(labels, predictions, average='weighted')
+    
+    mse = mean_squared_error(labels, predictions)
+    
+    return accuracy, fscoreMicro, fscoreMacro, fscoreWeighted, recallscoreMicro, recallscoreMacro, recallscoreWeighted, mse
+
+
 def Main():
+    np.random.seed(0)
     train_filename="UCI HAR Dataset/train/X_train.txt"
     train_dataset = LoadDataset(train_filename)
     print("Loaded training data file {0} with {1} rows").format(train_filename, len(train_dataset))
@@ -57,76 +88,26 @@ def Main():
     print("Loaded training labels data file {0} with {1} rows").format(test_label_filename, len(test_label_dataset))
 
     # train_dataset, test_dataset = pca(train_dataset, test_dataset, 178)
-    acc_1=[]
-    acc_2=[]
-    acc_3=[]
-    max_pred_1 = 0 
-    num_node_1 = 0
-    max_pred_2 = 0 
-    num_node_2_1 = 0
-    num_node_2_2 = 0
-    max_pred_3 = 0 
-    num_node_3_1 = 0
-    num_node_3_2 = 0
-    num_node_3_3 = 0
-    for i in range(1,500):
-        print("Running: " + str(i) + "/500")
-        mlp = MLPClassifier(hidden_layer_sizes=(i), random_state=0)
-        mlp.fit(train_dataset, train_label_dataset)
-
-        predictions = mlp.predict(test_dataset)
+    acc=[]
+    max_pred = 0
+    num_node = 0
+    # 1 Layer - 48 - 0.956905327452
+    for i in range(3,100):
+        print("Running: " + str(i) + "/100")
+        predictions = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, 0)
         # print(confusion_matrix(test_label_dataset,predictions))
         # print(classification_report(test_label_dataset,predictions))
-        acc_1.append(accuracy_score(test_label_dataset,predictions))    
-        if accuracy_score(test_label_dataset,predictions) > max_pred_1:
-            max_pred_1 = accuracy_score(test_label_dataset,predictions)
-            num_node_1 = i
+        print((i, 0) + NeuralNetworkResults(test_label_dataset, predictions))
+        acc.append((i, 0) + NeuralNetworkResults(test_label_dataset, predictions))
+        #if accuracy_score(test_label_dataset,predictions) > max_pred:
+            #max_pred = accuracy_score(test_label_dataset,predictions)
+            #num_node = i
 
-    for x in range(1,500):
-        print("Running: " + str(x) + "/500")
-        for y in range(1,500):
-            mlp = MLPClassifier(hidden_layer_sizes=(x, y), random_state=0)
-            mlp.fit(train_dataset, train_label_dataset)
-
-            predictions = mlp.predict(test_dataset)
-            # print(confusion_matrix(test_label_dataset,predictions))
-            # print(classification_report(test_label_dataset,predictions))
-            acc_2.append(accuracy_score(test_label_dataset,predictions))    
-            if accuracy_score(test_label_dataset,predictions) > max_pred_2:
-                max_pred_2 = accuracy_score(test_label_dataset,predictions)
-                num_node_2_1 = x
-                num_node_2_2 = y
-
-    for x in range(1,500):
-        print("Running: " + str(x) + "/500")
-        for y in range(1,500):
-            for z in range(1,500):
-                mlp = MLPClassifier(hidden_layer_sizes=(x, y, z), random_state=0)
-                mlp.fit(train_dataset, train_label_dataset)
-
-                predictions = mlp.predict(test_dataset)
-                # print(confusion_matrix(test_label_dataset,predictions))
-                # print(classification_report(test_label_dataset,predictions))
-                acc_3.append(accuracy_score(test_label_dataset,predictions))    
-                if accuracy_score(test_label_dataset,predictions) > max_pred_3:
-                    max_pred_3 = accuracy_score(test_label_dataset,predictions)
-                    num_node_3_1 = x
-                    num_node_3_2 = y
-                    num_node_3_3 = z
     # print(acc)
     plt.plot(acc_1)
-    plt.plot(acc_2)
-    plt.plot(acc_3)
     plt.show()
     print(max_pred_1)
     print(num_node_1)
-    print(max_pred_2)
-    print(num_node_2_1)
-    print(num_node_2_2)
-    print(max_pred_3)
-    print(num_node_3_1)
-    print(num_node_3_2)
-    print(num_node_3_3)
 
 
 Main()

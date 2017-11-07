@@ -32,17 +32,17 @@ for (i in 561:1) {
 }
 
 print("Class 1")
-print(dim(training_set[training_set$class==1,]))
+print(dim(training_set.pca[training_set$class==1,]))
 print("Class 2")
-print(dim(training_set[training_set$class==2,]))
+print(dim(training_set.pca[training_set$class==2,]))
 print("Class 3")
-print(dim(training_set[training_set$class==3,]))
+print(dim(training_set.pca[training_set$class==3,]))
 print("Class 4")
-print(dim(training_set[training_set$class==4,]))
+print(dim(training_set.pca[training_set$class==4,]))
 print("Class 5")
-print(dim(training_set[training_set$class==5,]))
+print(dim(training_set.pca[training_set$class==5,]))
 print("Class 6")
-print(dim(training_set[training_set$class==6,]))
+print(dim(training_set.pca[training_set$class==6,]))
 
 t1 <- training_set[training_set$class==1,]
 t2 <- training_set[training_set$class==2,]
@@ -51,7 +51,7 @@ t4 <- training_set[training_set$class==4,]
 t5 <- training_set[training_set$class==5,]
 t6 <- training_set[training_set$class==6,]
 
-# par(mfrow=c(6,1))
+par(mfrow=c(6,1), mar=c(1,1,1,1))
 
 ws <- t(as.matrix(t1[sample(nrow(t1), 1),]))
 wus <- t(as.matrix(t2[sample(nrow(t2), 1),]))
@@ -61,12 +61,12 @@ sts <- t(as.matrix(t5[sample(nrow(t5), 1),]))
 ls <- t(as.matrix(t6[sample(nrow(t6), 1),]))
 
 
-# plot(ws, type="l", col="red", main="1. Walking")
-# plot(wus, type = "l", col = "blue", main="2. Walking Upstairs")
-# plot(wds, type = "l", col = "orange", main="3. Walking Downstairs")
-# plot(ss, type = "l", col = "green", main="4. Sitting")
-# plot(sts, type = "l", col = "black", main="5. Standing")
-# plot(ls, type = "l", col = "purple", main="6. Laying")
+plot(ws, type="l", col="red", main="1. Walking")
+plot(wus, type = "l", col = "blue", main="2. Walking Upstairs")
+plot(wds, type = "l", col = "orange", main="3. Walking Downstairs")
+plot(ss, type = "l", col = "green", main="4. Sitting")
+plot(sts, type = "l", col = "black", main="5. Standing")
+plot(ls, type = "l", col = "purple", main="6. Laying")
 
 
 library(neuralnet) 
@@ -109,13 +109,13 @@ train <- cbind(training_set.pca[, 1:pca_number], class.ind(as.factor(training_se
 names(train) <- c(names(training_set.pca)[1:pca_number],"l1","l2","l3", "l4", "l5", "l6")
 n <- names(train)
 f <- as.formula(paste("l1 + l2 + l3 + l4 + l5 + l6 ~", paste(n[!n %in% c("l1","l2","l3", "l4", "l5", "l6")], collapse = " + ")))
-nn <- neuralnet(f, data = train, hidden = c(50, 26), act.fct = "logistic", linear.output = FALSE, lifesign = "minimal")
+nn <- neuralnet(f, data = train, hidden = c(30, 30, 30), act.fct = "logistic", linear.output = FALSE, lifesign = "minimal")
 pr.nn <- compute(nn, test_data.pca)
 pr.nn_ <- pr.nn$net.result
 pr.nn_2 <- max.col(pr.nn_)
 mean(pr.nn_2 == test_labels)
 print(confusionMatrix(unlist(pr.nn_2), unlist(test_labels)))
-plot(nn)
+#plot(nn)
 
 #0.9243298
 #0.9049881
