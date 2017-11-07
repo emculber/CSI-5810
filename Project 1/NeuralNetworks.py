@@ -4,6 +4,7 @@ from sklearn.metrics import classification_report,confusion_matrix,accuracy_scor
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 
 
 def LoadDataset(filename):
@@ -41,8 +42,8 @@ def pca(train, test, num):
 
         return train, test
 
-def NeuralNetwork(hidden_layer_sizes, train_dataset, train_label_dataset, test_dataset, random_state):
-    mlp = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, random_state=random_state)
+def NeuralNetwork(hidden_layer_sizes, train_dataset, train_label_dataset, test_dataset, random_state, activation):
+    mlp = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, random_state=random_state, activation=activation)
     mlp.fit(train_dataset, train_label_dataset)
         
     predictions = mlp.predict(test_dataset)
@@ -91,23 +92,39 @@ def Main():
     acc=[]
     max_pred = 0
     num_node = 0
+
+    orig_stdout = sys.stdout
+    f = open('results/out4.txt', 'w')
+
     # 1 Layer - 48 - 0.956905327452
-    for i in range(3,100):
-        print("Running: " + str(i) + "/100")
-        predictions = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, 0)
-        # print(confusion_matrix(test_label_dataset,predictions))
-        # print(classification_report(test_label_dataset,predictions))
-        print((i, 0) + NeuralNetworkResults(test_label_dataset, predictions))
-        acc.append((i, 0) + NeuralNetworkResults(test_label_dataset, predictions))
-        #if accuracy_score(test_label_dataset,predictions) > max_pred:
-            #max_pred = accuracy_score(test_label_dataset,predictions)
-            #num_node = i
+    for i in range(15,20):
+        for x in range(0,26):
+            print("Running: " + str(i) + "/600 : " + str(x) + "/25")
+            predictions_identity = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "identity")
+            predictions_logistic = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "logistic")
+            predictions_tanh = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "tanh")
+            predictions_relu = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "relu")
+            # print(confusion_matrix(test_label_dataset,predictions))
+            # print(classification_report(test_label_dataset,predictions))
+            #print((i, 0) + NeuralNetworkResults(test_label_dataset, predictions))
+            f.write(str((i, x, "identity") + NeuralNetworkResults(test_label_dataset, predictions_identity)) + '\n')
+            f.write(str((i, x, "logistic") + NeuralNetworkResults(test_label_dataset, predictions_logistic)) + '\n')
+            f.write(str((i, x, "tanh") + NeuralNetworkResults(test_label_dataset, predictions_tanh)) + '\n')
+            f.write(str((i, x, "relu") + NeuralNetworkResults(test_label_dataset, predictions_relu)) + '\n')
+            #if accuracy_score(test_label_dataset,predictions) > max_pred:
+                #max_pred = accuracy_score(test_label_dataset,predictions)
+                #num_node = i
 
     # print(acc)
-    plt.plot(acc_1)
-    plt.show()
-    print(max_pred_1)
-    print(num_node_1)
+    # plt.plot(acc)
+    # plt.show()
+    # print(max_pred_1)
+    # print(num_node_1)
+
+    #   for i in range(len(acc)):
+    #    print acc[i]
+
+    f.close()
 
 
 Main()
