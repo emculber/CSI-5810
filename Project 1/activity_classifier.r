@@ -77,12 +77,33 @@ colnames(training_set_count_table) <- c("WALKING", "WALKING_UPSTAIRS", "WALKING_
 rownames(training_set_count_table) <- c("COUNT", factor(1:30))
 training_set_count_table <- as.table(training_set_count_table)
 
-
-barplot(training_set_count_table[1,], main="Training Set Count", xlab="Activity Label", ylab="Activity Count")
-readline(prompt="Press [enter] to continue")
-barplot(training_set_count_table[-1,], main="Training Set Counts", xlab="Activity Label", ylab="Activity Count", legend = rownames(training_set_count_table), beside=TRUE)
-readline(prompt="Press [enter] to continue")
+# jpeg('activity_count.jpg')
+par(mar=c(12,7,4,1))
+barplot(training_set_count_table[1,], main="Training Set Count", xlab="Activity Label", ylab="Activity Count", las=2, col=c("blue"))
+#dev.off()
+# readline(prompt="Press [enter] to continue")
+# barplot(training_set_count_table[-1,], main="Training Set Counts", xlab="Activity Label", ylab="Activity Count", legend = rownames(training_set_count_table), beside=TRUE)
+print(table(training_set_count_table[-1,]))
+colfunc <- colorRampPalette(c("blue", "red"))
+barplot(
+        training_set_count_table[-1,],
+        main="Training Set Counts",
+        xlab="Activity Label", 
+        ylab="Activity Count",
+        beside=TRUE,
+        xlim=c(0, ncol(training_set_count_table[-1,]) * 32),
+        col=colfunc(30),
+        legend.text=TRUE,
+        args.legend=list(
+                         x=(ncol(training_set_count_table[-1,]) * 32) + 3,
+                         #y=max(colSums(training_set_count_table[-1,])),
+                         bty = "n"
+                         )
+        )
+# readline(prompt="Press [enter] to continue")
+ss <- tableGrob(training_set_count_table[-1,])
 grid.arrange(ss)
+readline(prompt="Press [enter] to continue")
 
 print(sprintf("Class 1 dim: (%d, %d)", dim(t1)[1], dim(t1)[2]))
 print(sprintf("Class 2 dim: (%d, %d)", dim(t2)[1], dim(t2)[2]))
@@ -115,14 +136,14 @@ ls <- t(as.matrix(t6[sample(nrow(t6), 1),]))
 # plot(ls, type = "l", col = "purple", main="6. Laying")
 
 
-library(neuralnet) 
+# library(neuralnet) 
 # n <- names(training_set)
 # a <- as.formula(paste("class ~", paste(n[!n %in% "class"], collapse = " + ")))
 # nn <- neuralnet(f,data=training_set,hidden=c(5,3),linear.output=T)
 # plot(nn)
 # pr.nn <- compute(nn,test_data)
 
-set.seed(10)
+# set.seed(10)
 
 # train <- cbind(training_set[, 1:561], class.ind(as.factor(training_set$class)))
 # names(train) <- c(names(training_set)[1:561],"l1","l2","l3", "l4", "l5", "l6")
@@ -150,17 +171,17 @@ set.seed(10)
 #set.seed(10)
 #rf_ga <- gafs(x = training_data, y = unlist(training_labels), iters = 200, gafsControl = ga_ctrl)
 
-train <- cbind(training_set.pca[, 1:pca_number], class.ind(as.factor(training_set.pca$class)))
-names(train) <- c(names(training_set.pca)[1:pca_number],"l1","l2","l3", "l4", "l5", "l6")
-n <- names(train)
-f <- as.formula(paste("l1 + l2 + l3 + l4 + l5 + l6 ~", paste(n[!n %in% c("l1","l2","l3", "l4", "l5", "l6")], collapse = " + ")))
-nn <- neuralnet(f, data = train, hidden = c(50, 26), act.fct = "logistic", linear.output = FALSE, lifesign = "minimal")
-pr.nn <- compute(nn, test_data.pca)
-pr.nn_ <- pr.nn$net.result
-pr.nn_2 <- max.col(pr.nn_)
-mean(pr.nn_2 == test_labels)
-print(confusionMatrix(unlist(pr.nn_2), unlist(test_labels)))
-plot(nn)
+# train <- cbind(training_set.pca[, 1:pca_number], class.ind(as.factor(training_set.pca$class)))
+# names(train) <- c(names(training_set.pca)[1:pca_number],"l1","l2","l3", "l4", "l5", "l6")
+# n <- names(train)
+# f <- as.formula(paste("l1 + l2 + l3 + l4 + l5 + l6 ~", paste(n[!n %in% c("l1","l2","l3", "l4", "l5", "l6")], collapse = " + ")))
+# nn <- neuralnet(f, data = train, hidden = c(50, 26), act.fct = "logistic", linear.output = FALSE, lifesign = "minimal")
+# pr.nn <- compute(nn, test_data.pca)
+# pr.nn_ <- pr.nn$net.result
+# pr.nn_2 <- max.col(pr.nn_)
+# mean(pr.nn_2 == test_labels)
+# print(confusionMatrix(unlist(pr.nn_2), unlist(test_labels)))
+# plot(nn)
 
 #0.9243298
 #0.9049881
