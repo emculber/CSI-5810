@@ -5,6 +5,7 @@ from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
+import multiprocessing as mp
 
 
 def LoadDataset(filename):
@@ -69,6 +70,22 @@ def NeuralNetworkResults(labels, predictions):
     
     return accuracy, fscoreMicro, fscoreMacro, fscoreWeighted, recallscoreMicro, recallscoreMacro, recallscoreWeighted, mse
 
+def OneTest(train_dataset, train_label_dataset, test_dataset, test_label_dataset, i, x):
+
+    print("Running: " + str(i) + "/600 : " + str(x) + "/25")
+    predictions_identity = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "identity")
+    predictions_logistic = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "logistic")
+    predictions_tanh = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "tanh")
+    predictions_relu = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "relu")
+
+    output = ""
+    output += (str((i, x, "identity") + NeuralNetworkResults(test_label_dataset, predictions_identity)) + '\n')
+    output += (str((i, x, "logistic") + NeuralNetworkResults(test_label_dataset, predictions_logistic)) + '\n')
+    output += (str((i, x, "tanh") + NeuralNetworkResults(test_label_dataset, predictions_tanh)) + '\n')
+    output += (str((i, x, "relu") + NeuralNetworkResults(test_label_dataset, predictions_relu)) + '\n')
+    return output
+
+
 
 def Main():
     np.random.seed(0)
@@ -89,41 +106,18 @@ def Main():
     print("Loaded training labels data file {0} with {1} rows").format(test_label_filename, len(test_label_dataset))
 
     # train_dataset, test_dataset = pca(train_dataset, test_dataset, 178)
-    acc=[]
-    max_pred = 0
-    num_node = 0
-
-    orig_stdout = sys.stdout
     f = open('results/out4.txt', 'w')
-
+    
+    results = []
+    pool = mp.Pool(processes=8)
     # 1 Layer - 48 - 0.956905327452
-    for i in range(15,20):
-        for x in range(0,26):
-            print("Running: " + str(i) + "/600 : " + str(x) + "/25")
-            predictions_identity = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "identity")
-            predictions_logistic = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "logistic")
-            predictions_tanh = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "tanh")
-            predictions_relu = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "relu")
-            # print(confusion_matrix(test_label_dataset,predictions))
-            # print(classification_report(test_label_dataset,predictions))
-            #print((i, 0) + NeuralNetworkResults(test_label_dataset, predictions))
-            f.write(str((i, x, "identity") + NeuralNetworkResults(test_label_dataset, predictions_identity)) + '\n')
-            f.write(str((i, x, "logistic") + NeuralNetworkResults(test_label_dataset, predictions_logistic)) + '\n')
-            f.write(str((i, x, "tanh") + NeuralNetworkResults(test_label_dataset, predictions_tanh)) + '\n')
-            f.write(str((i, x, "relu") + NeuralNetworkResults(test_label_dataset, predictions_relu)) + '\n')
-            #if accuracy_score(test_label_dataset,predictions) > max_pred:
-                #max_pred = accuracy_score(test_label_dataset,predictions)
-                #num_node = i
-
-    # print(acc)
-    # plt.plot(acc)
-    # plt.show()
-    # print(max_pred_1)
-    # print(num_node_1)
-
-    #   for i in range(len(acc)):
-    #    print acc[i]
-
+    for i in range(1,601):
+        for x in range(0,25):
+            results.append(pool.apply_async(OneTest, args=(train_dataset, train_label_dataset, test_dataset, test_label_dataset, i, x)))
+    output = [p.get() for p in results]
+    for i in range(len(output)):
+        print(output[i])
+        f.write(output[i])
     f.close()
 
 
