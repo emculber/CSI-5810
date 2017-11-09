@@ -1,9 +1,10 @@
 library(nnet)
 library(caret)
 library(gridExtra)
+library(plotly)
 
 # Settings
-pca_number <- 178
+pca_number <- 3
 
 # Load Data
 print("Loading Data")
@@ -51,6 +52,18 @@ t3 <- training_set[training_set$class==3,]
 t4 <- training_set[training_set$class==4,]
 t5 <- training_set[training_set$class==5,]
 t6 <- training_set[training_set$class==6,]
+
+
+
+
+print("plot PCA")
+#plot_ly(training_data.pca)
+plot_ly(training_data.pca, x = ~PC1, y = ~PC2, z = ~PC3)
+
+plot(as.matrix(training_data.pca), type="p")
+
+
+readline(prompt="Press [enter] to continue")
 
 ta1 <- training_all[training_all$class==1,]
 ta2 <- training_all[training_all$class==2,]
@@ -103,7 +116,6 @@ barplot(
 # readline(prompt="Press [enter] to continue")
 ss <- tableGrob(training_set_count_table[-1,])
 grid.arrange(ss)
-readline(prompt="Press [enter] to continue")
 
 print(sprintf("Class 1 dim: (%d, %d)", dim(t1)[1], dim(t1)[2]))
 print(sprintf("Class 2 dim: (%d, %d)", dim(t2)[1], dim(t2)[2]))
@@ -118,7 +130,7 @@ variance <- pca.summary$importance[2,]
 #     print(sprintf("%d: %f", i, sum(pca.summary$importance[2,1:i])))
 # }
 
-# par(mfrow=c(6,1))
+par(mfrow=c(6,1))
 
 ws <- t(as.matrix(t1[sample(nrow(t1), 1),]))
 wus <- t(as.matrix(t2[sample(nrow(t2), 1),]))
@@ -128,14 +140,15 @@ sts <- t(as.matrix(t5[sample(nrow(t5), 1),]))
 ls <- t(as.matrix(t6[sample(nrow(t6), 1),]))
 
 
-# plot(ws, type="l", col="red", main="1. Walking")
-# plot(wus, type = "l", col = "blue", main="2. Walking Upstairs")
-# plot(wds, type = "l", col = "orange", main="3. Walking Downstairs")
-# plot(ss, type = "l", col = "green", main="4. Sitting")
-# plot(sts, type = "l", col = "black", main="5. Standing")
-# plot(ls, type = "l", col = "purple", main="6. Laying")
+plot(ws, type="l", col="red", main="1. Walking")
+plot(wus, type = "l", col = "blue", main="2. Walking Upstairs")
+plot(wds, type = "l", col = "orange", main="3. Walking Downstairs")
+plot(ss, type = "l", col = "green", main="4. Sitting")
+plot(sts, type = "l", col = "black", main="5. Standing")
+plot(ls, type = "l", col = "purple", main="6. Laying")
 
 
+readline(prompt="Press [enter] to continue")
 # library(neuralnet) 
 # n <- names(training_set)
 # a <- as.formula(paste("class ~", paste(n[!n %in% "class"], collapse = " + ")))
