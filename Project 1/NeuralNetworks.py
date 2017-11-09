@@ -35,7 +35,6 @@ def SeparateByClass(dataset, labels):
     return separated
 
 def pca(train, test, num):
-	print "%d-Dim:"%num
 	pca = PCA(n_components=num)
 	pca.fit(train)
         train = pca.transform(train)
@@ -70,21 +69,37 @@ def NeuralNetworkResults(labels, predictions):
     
     return accuracy, fscoreMicro, fscoreMacro, fscoreWeighted, recallscoreMicro, recallscoreMacro, recallscoreWeighted, mse
 
-def OneTest(train_dataset, train_label_dataset, test_dataset, test_label_dataset, i, x):
+def OneTest(q, train_dataset, train_label_dataset, test_dataset, test_label_dataset, i, x, pca_num):
 
-    print("Running: " + str(i) + "/600 : " + str(x) + "/25")
+    print("Running: " + str(i) + "/600 : " + str(x) + "/25 : " + str(pca_num) + "/561")
+
+    if pca_num != 561:
+        train_dataset, test_dataset = pca(train_dataset, test_dataset, pca_num)
+
     predictions_identity = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "identity")
     predictions_logistic = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "logistic")
     predictions_tanh = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "tanh")
     predictions_relu = NeuralNetwork(i, train_dataset, train_label_dataset, test_dataset, x, "relu")
 
     output = ""
-    output += (str((i, x, "identity") + NeuralNetworkResults(test_label_dataset, predictions_identity)) + '\n')
-    output += (str((i, x, "logistic") + NeuralNetworkResults(test_label_dataset, predictions_logistic)) + '\n')
-    output += (str((i, x, "tanh") + NeuralNetworkResults(test_label_dataset, predictions_tanh)) + '\n')
-    output += (str((i, x, "relu") + NeuralNetworkResults(test_label_dataset, predictions_relu)) + '\n')
-    return output
+    output += (str((i, x, pca_num, "identity") + NeuralNetworkResults(test_label_dataset, predictions_identity)) + '\n')
+    output += (str((i, x, pca_num, "logistic") + NeuralNetworkResults(test_label_dataset, predictions_logistic)) + '\n')
+    output += (str((i, x, pca_num, "tanh") + NeuralNetworkResults(test_label_dataset, predictions_tanh)) + '\n')
+    output += (str((i, x, pca_num, "relu") + NeuralNetworkResults(test_label_dataset, predictions_relu)) + '\n')
+    q.put(output)
+    return str(output)
 
+def listener(q):
+    '''listens for messages on the q, writes to file. '''
+
+    f = open('out.txt', 'wb') 
+    while 1:
+        m = q.get()
+        if m == 'kill':
+            break
+        f.write(str(m) + '\n')
+        f.flush()
+    f.close()
 
 
 def Main():
@@ -105,20 +120,32 @@ def Main():
     test_label_dataset = LoadLabelDataset(test_label_filename)
     print("Loaded training labels data file {0} with {1} rows").format(test_label_filename, len(test_label_dataset))
 
-    # train_dataset, test_dataset = pca(train_dataset, test_dataset, 178)
-    f = open('results/out4.txt', 'w')
+    #f = open('out.txt', 'w')
     
     results = []
-    pool = mp.Pool(processes=8)
+
+    pool = mp.Pool(processes=mp.cpu_count() + 2)
+    #print(mp.cpu_count())
+    manager = mp.Manager()
+    q = manager.Queue()
+    watcher = pool.apply_async(listener, (q,))
+
     # 1 Layer - 48 - 0.956905327452
+
+    #for pca_num in range(1,562):
+    #    results.append(pool.apply_async(OneTest, args=(train_dataset, train_label_dataset, test_dataset, test_label_dataset, i, 0, pca_num)))
+
     for i in range(1,601):
         for x in range(0,25):
-            results.append(pool.apply_async(OneTest, args=(train_dataset, train_label_dataset, test_dataset, test_label_dataset, i, x)))
+            results.append(pool.apply_async(OneTest, args=(q, train_dataset, train_label_dataset, test_dataset, test_label_dataset, i, x, 561)))
     output = [p.get() for p in results]
-    for i in range(len(output)):
-        print(output[i])
-        f.write(output[i])
-    f.close()
+    #for i in range(len(output)):
+    #    print(output[i])
+    #    f.write(output[i])
+    #f.close()
+
+    q.put('kill')
+    pool.close()
 
 
 Main()
