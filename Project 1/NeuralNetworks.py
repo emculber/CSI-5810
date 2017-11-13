@@ -120,6 +120,11 @@ def Main():
     test_label_dataset = LoadLabelDataset(test_label_filename)
     print("Loaded training labels data file {0} with {1} rows").format(test_label_filename, len(test_label_dataset))
 
+    p = NeuralNetwork(11, train_dataset, train_label_dataset, test_dataset, 0, "logistic")
+    print(confusion_matrix(test_label_dataset, p))
+    print(classification_report(test_label_dataset, p))
+    print(confusion_matrix(test_label_dataset, p).ravel())
+    return
     #f = open('out.txt', 'w')
     
     results = []

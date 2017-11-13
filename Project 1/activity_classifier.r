@@ -1,3 +1,49 @@
+results <- read.table("out.txt")
+sorted <- results[with(results, order(V1, V2)),]
+start <- 1
+averaged_identity <- c(start, mean(sorted[sorted$V4=="identity" & sorted$V1==start,5]))
+averaged_logistic <- c(start, mean(sorted[sorted$V4=="logistic" & sorted$V1==start,5]))
+averaged_tanh <- c(start, mean(sorted[sorted$V4=="tanh" & sorted$V1==start,5]))
+averaged_relu <- c(start, mean(sorted[sorted$V4=="relu" & sorted$V1==start,5]))
+
+for(i in (start+1):150) {
+  averaged_identity <- rbind(averaged_identity, c(i, mean(sorted[sorted$V4=="identity" & sorted$V1==i,5])))
+  averaged_logistic <- rbind(averaged_logistic, c(i, mean(sorted[sorted$V4=="logistic" & sorted$V1==i,5])))
+  averaged_tanh <- rbind(averaged_tanh, c(i, mean(sorted[sorted$V4=="tanh" & sorted$V1==i,5])))
+  averaged_relu <- rbind(averaged_relu, c(i, mean(sorted[sorted$V4=="relu" & sorted$V1==i,5])))
+}
+
+plot(averaged_logistic, col="red", type="l", main="Accuracy given number of hidden nodes", xlab="Number of Hidden Nodes", ylab="Accuracy")
+lines(averaged_identity, col="blue")
+lines(averaged_tanh, col="green")
+lines(averaged_relu, col="orange")
+
+legend("bottomright", legend=c("identity", "logistic", "tanh", "relu"), col=c("blue", "red", "green", "orange"), lty=1:2, cex=1.5)
+
+
+cm <- matrix(c(492, 0, 4, 0, 0, 0, 25,445,1,0,0,0,4,17,399,0,0,0,0,2,0,442,47,0,0,0,0,29,503,0,0,0,0,0,9,528), nrow=6, ncol=6, byrow=TRUE)
+cm <- data.frame(cm)
+colnames(cm) <- c("Walking", "Walking Upstairs", "Walking Downstairs", "Sitting", "Standing", "Laying")
+rownames(cm) <- c("Walking", "Walking Upstairs", "Walking Downstairs", "Sitting", "Standing", "Laying")
+grid.arrange(tableGrob(cm))
+
+
+cm <- matrix(c(0.94,0.99,0.97,496,
+               0.96,0.94,0.95,471,
+               0.99,0.95,0.97,420,
+               0.94,0.90,0.92,491,
+               0.90,0.95,0.92,532,
+               1.00,0.98,0.99,537,
+               0.95,0.95,0.95,2947), nrow=6, ncol=4, byrow=TRUE)
+colnames(cm) <- c("Percision", "Recall", "F1-score", "Support")
+rownames(cm) <- c("Walking", "Walking Upstairs", "Walking Downstairs", "Sitting", "Standing", "Laying", "avg / total")
+grid.arrange(tableGrob(cm))
+
+readline(prompt="Press [enter] to continue")
+
+
+
+
 library(nnet)
 library(caret)
 library(gridExtra)
@@ -60,10 +106,12 @@ print("plot PCA")
 #plot_ly(training_data.pca)
 plot_ly(training_data.pca, x = ~PC1, y = ~PC2, z = ~PC3)
 
-plot(as.matrix(training_data.pca), type="p")
-
-
 readline(prompt="Press [enter] to continue")
+
+plot(training_data.pca, pch=21, bg=c("green", "blue", "red", "yellow", "orange", "black")[unclass(training_set.pca$class)])
+legend(1, 95, legend=c("Walking", "Walking Upstairs", "Walking Downstairs", "Sitting", "Standing", "Laying"),
+              col=c("green", "blue", "red", "yellow", "orange", "black"), lty=1:2, cex=0.8)
+
 
 ta1 <- training_all[training_all$class==1,]
 ta2 <- training_all[training_all$class==2,]
@@ -226,3 +274,4 @@ readline(prompt="Press [enter] to continue")
     #print(confusionMatrix(unlist(pr.nn_2), unlist(test_labels)))
 # }
 # print(results)
+
