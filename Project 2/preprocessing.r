@@ -58,29 +58,27 @@ for (lan in search) {
   print(paste0(lan, " : ", dim(grab)[1]))
 }
 
-  scores = score.sentiment(data$text, pos, neg, .progress='text')
-  scores$very.pos = as.numeric(scores$score >= 2)
-  scores$very.neg = as.numeric(scores$score <= -2)
+scores = score.sentiment(data$text, pos, neg, .progress='text')
+scores$very.pos = as.numeric(scores$score >= 2)
+scores$very.neg = as.numeric(scores$score <= -2)
 
-  # how many very positives and very negatives
-  numpos = sum(scores$very.pos)
-  numneg = sum(scores$very.neg)
+# how many very positives and very negatives
+numpos = sum(scores$very.pos)
+numneg = sum(scores$very.neg)
 
-  # global score
-  global_score = round( 100 * numpos / (numpos + numneg) )
+# global score
+global_score = round( 100 * numpos / (numpos + numneg) )
 
-  # colors
-  cols = c("#7CAE00", "#00BFC4", "#F8766D", "#C77CFF")
-  names(cols) = c("beer", "coffee", "soda", "wine")
+print(count(scores$very.pos))
+print(count(scores$very.neg))
 
-  # boxplot
-  #ggplot(scores, aes(x=data, y=score, group=V20)) +
-  #  geom_boxplot(aes(fill=drink)) +
-  #  scale_fill_manual(values=cols) +
-  #  geom_jitter(colour="gray40",
-  #              position=position_jitter(width=0.2), alpha=0.3) +
-  print(count(scores$very.pos))
-  print(count(scores$very.neg))
+scores$label = data$V20
+
+for(lan in search) {
+  print(paste0(lan, ": ", mean(scores[scores$label==lan,]$score)))
+}
+
+# print(head(scores))
 
 readline(prompt="Enter...")
 
@@ -99,7 +97,7 @@ corpus <- tm_map(corpus, content_transformer(removeURL))
 corpus <- tm_map(corpus, removeNumbers)
 corpus <- tm_map(corpus, removePunctuation)
 corpus <- tm_map(corpus, stripWhitespace)
-corpus <- tm_map(corpus, removeWords, c(stopwords('english'), "rt", search))
+corpus <- tm_map(corpus, removeWords, c(stopwords('english'), "rt"))
 
 corpusCopy <- corpus
 
@@ -149,9 +147,9 @@ m <- as.matrix(tdm)
 print(dim(m))
 word.freq <- sort(rowSums(m), decreasing=T)
 pal <- brewer.pal(9, "BuGn")[-(1:4)]
-png(filename="cloud_without.png")
-wordcloud(words=names(word.freq), freq=word.freq, min.freq=3, random.order=F, colors=pal)
-dev.off()
+#png(filename="cloud_with.png")
+#wordcloud(words=names(word.freq), freq=word.freq, min.freq=3, random.order=F, colors=pal)
+#dev.off()
 
 readline(prompt="Enter...")
 
@@ -182,7 +180,9 @@ library(cluster)
 
 d <- dist(t(m3), method="euclidian")   
 kfit <- kmeans(d, k)   
+png(filename="cluster.png")
 clusplot(as.matrix(d), kfit$cluster, color=T, shade=T, labels=2, lines=0)
+dev.off()
 
 # mat4 <- weightTfIdf(tdm)
 # mat4 <- as.matrix(mat4)
