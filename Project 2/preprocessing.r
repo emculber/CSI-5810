@@ -36,7 +36,7 @@ score.sentiment <- function(sentences, pos.words, neg.words, .progress='none')
   pos <- scan('positive-words.txt', what='character', comment.char=';') #folder with positive dictionary
   neg <- scan('negative-words.txt', what='character', comment.char=';') #folder with negative dictionary
   pos.words <- c(pos, 'upgrade')
-  neg.words <- c(neg, 'wtf', 'wait', 'waiting', 'epicfail')
+  neg.words <- c(neg, 'wtf', 'wait', 'waiting', 'epicfail', 'error')
 
   #scores <- score.sentiment(text, pos.words, neg.words)
   #print(paste0(label, ": ", sum(scores$score)))
@@ -45,11 +45,13 @@ search <- c("c", "cpp", "cplusplus", "python", "java", "python", "csharp", "java
 
 data <- data.frame()
 
+count <- 0
 for (lan in search) {
   grab <- load_tweets_db(as.data.frame = TRUE, table_name = lan)
   grab[,20] <- lan
+  count <- count + dim(grab)[1]
   grab <- grab[!grepl("RT ", grab$text),]
-  amount <- 1000
+  amount <- 1000000
   if(amount > dim(grab)[1]) {
     amount = dim(grab)[1]
   }
@@ -57,11 +59,13 @@ for (lan in search) {
   data <- rbind(data, grab[1:amount,])
   print(paste0(lan, " : ", dim(grab)[1]))
 }
-
+print(count)
 scores = score.sentiment(data$text, pos, neg, .progress='text')
 scores$very.pos = as.numeric(scores$score >= 2)
 scores$very.neg = as.numeric(scores$score <= -2)
 
+print(scores[scores$score==max(scores$score),])
+print(scores[scores$score==min(scores$score),])
 # how many very positives and very negatives
 numpos = sum(scores$very.pos)
 numneg = sum(scores$very.neg)
@@ -141,7 +145,7 @@ print(tdm)
 # df <- data.frame(term=names(term.freq), freq=term.freq)
 # ggplot(df, aes(x=term, y=freq)) + geom_bar(stat="identity") + xlab("Terms") + ylab("Count") + coord_flip()
 
-readline(prompt="Enter...")
+#readline(prompt="Enter...")
 
 m <- as.matrix(tdm)
 print(dim(m))
@@ -151,21 +155,21 @@ pal <- brewer.pal(9, "BuGn")[-(1:4)]
 #wordcloud(words=names(word.freq), freq=word.freq, min.freq=3, random.order=F, colors=pal)
 #dev.off()
 
-readline(prompt="Enter...")
+#readline(prompt="Enter...")
 
-tdm2 <- removeSparseTerms(tdm, sparse=0.95)
+tdm2 <- removeSparseTerms(tdm, sparse=0.99)
 m2 <- as.matrix(tdm2)
 
-distMatrix <- dist(scale(m2))
-fit <- hclust(distMatrix, method="ward")
-plot(fit)
-rect.hclust(fit, k=6)
+#distMatrix <- dist(scale(m2))
+#fit <- hclust(distMatrix, method="ward")
+#plot(fit)
+#rect.hclust(fit, k=6)
 
 readline(prompt="Enter...")
 
 m3 <- t(m2)
 set.seed(122)
-k <- 6
+k <-6
 kmeansResult <- kmeans(m3, k)
 round(kmeansResult$centers, digits=3)
 for(i in 1:k) {
@@ -180,8 +184,13 @@ library(cluster)
 
 d <- dist(t(m3), method="euclidian")   
 kfit <- kmeans(d, k)   
+for(i in 1:k) {
+  cat(paste("cluster ", i, ":   ", set = " "))
+  s <- sort(kfit$centers[i,], decreasing=T)
+  cat(names(s)[1:5], "\n")
+}
 png(filename="cluster.png")
-clusplot(as.matrix(d), kfit$cluster, color=T, shade=T, labels=2, lines=0)
+clusplot(as.matrix(d), kmeansResult$cluster, color=T, shade=T, labels=2, lines=0)
 dev.off()
 
 # mat4 <- weightTfIdf(tdm)
@@ -195,7 +204,7 @@ dev.off()
 # k <- 3
 # kmeansResult <- kmeans(mat_norm, k)
 # 
-# kmeansResult$cluster[1:5]
+# print(kmeansResult$cluster[1:5])
 # 
 # count(kmeansResult$cluster)
 # 
@@ -205,7 +214,7 @@ dev.off()
 # result$counter <- 1
 # result.agg <- aggregate(counter~actual+predicted, data=result, FUN='sum')
 # 
-# result.agg
+# print(result.agg)
 # 
 # ggplot(data=result.agg, aes(x=actual, y=predicted, size=counter)) + geom_point()
 
